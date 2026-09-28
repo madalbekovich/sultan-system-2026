@@ -20,6 +20,8 @@ class OrderCreate(BaseModel):
 class OrderItemRead(BaseModel):
     id: int
     product_id: int
+    product_name: str
+    unit_type: str
     planned_qty: Decimal
     actual_qty: Decimal | None
     final_price: Decimal | None
@@ -30,6 +32,7 @@ class OrderItemRead(BaseModel):
 class OrderRead(BaseModel):
     id: int
     client_id: int
+    client_name: str
     created_at: datetime
     delivery_date: date
     status: OrderStatus
@@ -41,6 +44,10 @@ class OrderRead(BaseModel):
 
 class WeightUpdateRequest(BaseModel):
     actual_qty: Decimal
+
+
+class OrderStatusUpdateRequest(BaseModel):
+    status: OrderStatus
 
 
 class ProductSummaryEntry(BaseModel):

@@ -2,11 +2,17 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 
-from app.api.deps import get_db
+from app.api.deps import get_current_username, get_db
 from app.models.client import Client
 from app.schemas.client import ClientRead, ClientRegister
 
 router = APIRouter(prefix="/clients", tags=["clients"])
+
+
+@router.get("/", response_model=list[ClientRead], dependencies=[Depends(get_current_username)])
+async def list_clients(db: AsyncSession = Depends(get_db)) -> list[Client]:
+    result = await db.execute(select(Client).order_by(Client.name))
+    return list(result.scalars().all())
 
 
 @router.post("/register", response_model=ClientRead)

@@ -5,3 +5,12 @@ __pycache__/
 .DS_Store
 *.egg-info/
 .pytest_cache/
+
+# Flutter / Dart
+mobile/.dart_tool/
+mobile/.flutter-plugins
+mobile/.flutter-plugins-dependencies
+mobile/.packages
+mobile/build/
+mobile/*.iml
+mobile/.idea/
