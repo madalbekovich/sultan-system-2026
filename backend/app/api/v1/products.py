@@ -11,11 +11,15 @@ router = APIRouter(prefix="/products", tags=["products"])
 
 @router.get("/", response_model=list[ProductRead])
 async def list_products(
-    active_only: bool = True, db: AsyncSession = Depends(get_db)
+    active_only: bool = True,
+    category_id: int | None = None,
+    db: AsyncSession = Depends(get_db),
 ) -> list[Product]:
     query = select(Product)
     if active_only:
         query = query.where(Product.is_active == True)  # noqa: E712
+    if category_id is not None:
+        query = query.where(Product.category_id == category_id)
     result = await db.execute(query)
     return list(result.scalars().all())
 
