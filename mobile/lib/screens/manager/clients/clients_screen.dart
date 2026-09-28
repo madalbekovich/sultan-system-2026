@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../core/get_utils.dart';
 import '../../../data/clients_repository.dart';
 import '../../../widgets/status_views.dart';
 import 'clients_controller.dart';
@@ -10,10 +11,10 @@ class ClientsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(
-      ClientsController(Get.find<ClientsRepository>()),
+    final controller = putOnce(
+      () => ClientsController(Get.find<ClientsRepository>()),
       tag: 'clients',
-    );
+    )..refresh();
 
     return Scaffold(
       appBar: AppBar(title: const Text('Clients')),

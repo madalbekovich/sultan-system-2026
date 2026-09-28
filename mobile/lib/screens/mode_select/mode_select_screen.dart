@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import '../../data/auth_repository.dart';
 import '../../routes/app_routes.dart';
 import '../../widgets/big_button.dart';
-import '../auth/login_controller.dart';
 
 class ModeSelectScreen extends StatelessWidget {
   const ModeSelectScreen({super.key});

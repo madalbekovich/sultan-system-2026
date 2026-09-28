@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../core/get_utils.dart';
 import '../../../data/orders_repository.dart';
 import '../../../models/order.dart';
 import '../../../widgets/status_views.dart';
@@ -12,10 +13,10 @@ class OrderListScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(
-      OrderListController(Get.find<OrdersRepository>()),
+    final controller = putOnce(
+      () => OrderListController(Get.find<OrdersRepository>()),
       tag: 'order_list',
-    );
+    )..refresh();
 
     return Scaffold(
       appBar: AppBar(title: const Text('Order Assembly')),

@@ -33,20 +33,6 @@ class ApiClient {
           }
           handler.next(options);
         },
-        onError: (error, handler) {
-          final data = error.response?.data;
-          final detail = data is Map && data['detail'] != null
-              ? data['detail'].toString()
-              : error.message ?? 'Network error';
-          handler.reject(
-            DioException(
-              requestOptions: error.requestOptions,
-              response: error.response,
-              error: ApiException(error.response?.statusCode, detail),
-              type: error.type,
-            ),
-          );
-        },
       ),
     );
   }
@@ -54,23 +40,47 @@ class ApiClient {
   final Dio dio;
   final LocalStorage _storage;
 
-  Future<Response<T>> get<T>(String path, {Map<String, dynamic>? query}) {
-    return dio.get<T>(path, queryParameters: query);
+  ApiException _toApiException(DioException error) {
+    final data = error.response?.data;
+    final detail = data is Map && data['detail'] != null
+        ? data['detail'].toString()
+        : error.message ?? 'Network error';
+    return ApiException(error.response?.statusCode, detail);
+  }
+
+  Future<Response<T>> get<T>(String path, {Map<String, dynamic>? query}) async {
+    try {
+      return await dio.get<T>(path, queryParameters: query);
+    } on DioException catch (e) {
+      throw _toApiException(e);
+    }
   }
 
   Future<List<int>> getBytes(String path) async {
-    final response = await dio.get<List<int>>(
-      path,
-      options: Options(responseType: ResponseType.bytes),
-    );
-    return response.data!;
+    try {
+      final response = await dio.get<List<int>>(
+        path,
+        options: Options(responseType: ResponseType.bytes),
+      );
+      return response.data!;
+    } on DioException catch (e) {
+      throw _toApiException(e);
+    }
   }
 
-  Future<Response<T>> post<T>(String path, {Object? data}) {
-    return dio.post<T>(path, data: data);
+  Future<Response<T>> post<T>(String path, {Object? data}) async {
+    try {
+      return await dio.post<T>(path, data: data);
+    } on DioException catch (e) {
+      throw _toApiException(e);
+    }
   }
 
-  Future<Response<T>> patch<T>(String path, {Object? data}) {
-    return dio.patch<T>(path, data: data);
+  Future<Response<T>> patch<T>(String path, {Object? data}) async {
+    try {
+      return await dio.patch<T>(path, data: data);
+    } on DioException catch (e) {
+      throw _toApiException(e);
+    }
   }
 }

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../core/get_utils.dart';
 import '../../../data/products_repository.dart';
-import '../../../models/product.dart';
 import '../../../widgets/status_views.dart';
 import 'catalog_controller.dart';
 import 'product_form_sheet.dart';
@@ -12,10 +12,10 @@ class CatalogScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(
-      CatalogController(Get.find<ProductsRepository>()),
+    final controller = putOnce(
+      () => CatalogController(Get.find<ProductsRepository>()),
       tag: 'catalog',
-    );
+    )..refresh();
 
     return Scaffold(
       appBar: AppBar(title: const Text('Product Catalog')),

@@ -7,11 +7,26 @@ screens render instantly from the last-synced data while a fresh fetch runs.
 
 **This directory was hand-written without a local Flutter SDK to run
 `flutter create`/`pub get`/`analyze` against — there was none available in the
-environment that built it.** The `lib/` code follows standard Flutter/GetX
-patterns and every file's braces/parens balance, but it has **not** been
-compiled. Treat it as a strong first draft: run the steps below and fix
-whatever `flutter analyze`/`pub get` surface (expect minor things like a
-stale package API or a missed import).
+environment that built it.** It has since had a manual line-by-line review
+(not a substitute for `flutter analyze`, but it did catch two real bugs — see
+below), and every file's braces/parens balance. Still, run the steps below
+and fix whatever `flutter analyze`/`pub get` surface.
+
+Bugs found and fixed in review:
+- `ApiClient`'s error interceptor wrapped `ApiException` inside a new
+  `DioException`, so every `on ApiException catch (e)` at call sites (login,
+  waybill fetch) silently never matched — errors fell through to the generic
+  handler instead of showing the server's actual message. Fixed by having
+  each `ApiClient` method catch `DioException` and rethrow `ApiException`
+  directly.
+- Screens like `ProductionSummaryScreen` called `Get.put(...)` directly
+  inside `build()`. `Get.put` always overwrites the previous registration
+  under that tag without disposing it, so navigating back to a screen and
+  returning re-created its controller — and for
+  `ProductionSummaryController`, which runs a `Timer.periodic` polling the
+  summary endpoint, silently leaked one uncancelled timer per revisit.
+  Fixed with a `putOnce()` helper (`lib/core/get_utils.dart`) that reuses an
+  already-registered controller instead of replacing it.
 
 ## First-time setup
 

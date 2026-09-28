@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../core/get_utils.dart';
 import '../../../data/orders_repository.dart';
 import '../../../routes/app_routes.dart';
 import '../../../widgets/status_views.dart';
@@ -14,10 +15,10 @@ class ManagerDashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(
-      ManagerDashboardController(Get.find<OrdersRepository>()),
+    final controller = putOnce(
+      () => ManagerDashboardController(Get.find<OrdersRepository>()),
       tag: 'manager_dashboard',
-    );
+    )..refresh();
 
     return Scaffold(
       appBar: AppBar(
