@@ -1,0 +1,64 @@
+# TASK: Build High-Performance Production Automation System (Mobile App + Telegram Bot + Lightweight Fast Backend)
+
+## 1. Project Overview & Performance Requirements
+We are building a lighting-fast, rock-solid order processing and production management system for a meat/sausage factory.
+**CRITICAL REQUIREMENT:** Extremely low latency, zero lag, no heavy standard monolithic admin panels. It must handle poor network conditions in the workshop effortlessly.
+
+### Tech Stack Strategy:
+- **Backend**: Python (FastAPI + SQLModel / SQLAlchemy) OR Go (Fiber/Gin). Lightweight, highly async, and ultra-fast.
+- **Database**: PostgreSQL with Redis for caching daily summary.
+- **Mobile Application (For Workshop & Clients)**: Flutter (single codebase for Android/iOS/Tablets, ultra-responsive native performance).
+- **Telegram Bot**: Python (`aiogram 3.x`) for lightweight client ordering directly in Telegram.
+
+---
+
+## 2. System Components & Workflows
+
+### Component A: Telegram Bot (For Quick Ordering by Clients)
+1. **Catalog Browsing**: Fast interactive menu/buttons for products (Sausages, Vacuum packed, Halal, etc.).
+2. **Order Placement**: Client selects item, enters quantity (kg or pcs), confirms order.
+3. **Instant Sync**: Order is saved to DB and immediately pushed to the Mobile App / Factory Dashboard.
+
+### Component B: Mobile App - Factory / Worker Mode (Flutter)
+Designed specifically for factory tablets/phones with zero lag and big UI buttons for greasy hands/industrial environment:
+1. **Live Production Summary Screen (Total Weight Needed)**:
+   - Aggregated real-time calculation of ALL products ordered for today/tomorrow.
+   - Example: "Sultan Estonian: Total 4,800 kg needed today across 12 clients".
+2. **Order Assembly & Weighing Screen**:
+   - List of client orders (e.g., "Farukh Bishkek", "Azat-24").
+   - Worker selects a client order, sees planned items.
+   - Fast numeric input for **Actual Weighed Weight** (e.g., Planned 40 kg -> Input 42.5 kg).
+   - Auto-recalculates total sum instantly on device.
+   - Status update: Mark as "Assembled / Ready for Shipping".
+
+### Component C: Mobile App - Manager / Owner Mode (Flutter)
+1. Live daily sales/weight dashboard.
+2. Product catalog management (add/edit items, prices, categories).
+3. Client directory management.
+4. One-click PDF Waybill (Накладная) generation for printing or sharing via WhatsApp.
+
+---
+
+## 3. Core Database Models
+
+1. **Category**: `id`, `name`
+2. **Product**: `id`, `category_id`, `name`, `unit_type` (KG/PCS), `price_per_unit`, `is_active`
+3. **Client**: `id`, `tg_user_id`, `name`, `phone`, `address`
+4. **Order**: `id`, `client_id`, `created_at`, `delivery_date`, `status` (`PENDING`, `IN_ASSEMBLY`, `READY`, `DISPATCHED`), `total_amount`
+5. **OrderItem**: `id`, `order_id`, `product_id`, `planned_qty`, `actual_qty`, `final_price`
+
+---
+
+## 4. Execution Plan for Claude Code
+
+1. **Backend**: Setup FastAPI/Go project with PostgreSQL & async database drivers.
+2. **APIs**:
+   - `POST /api/v1/auth/`
+   - `GET /api/v1/products/`
+   - `GET /api/v1/orders/summary` (Aggregated weights for workshop)
+   - `PATCH /api/v1/orders/items/{id}/weight` (Update weighed weight)
+   - `GET /api/v1/orders/{id}/waybill-pdf`
+3. **Telegram Bot**: Implement `aiogram 3.x` bot connecting to the backend API.
+4. **Mobile App**: Scaffold Flutter app with clean architecture (GetX or Bloc for ultra-fast local state management), offline-first data caching, and instant UI updates.
+
+Please begin by setting up the asynchronous backend and database structure.
