@@ -21,10 +21,10 @@ class OrderListController extends GetxController {
     super.onInit();
     orders.assignAll(_repository.cachedOrders(_dateKey));
     isLoading.value = orders.isEmpty;
-    refresh();
+    reload();
   }
 
-  Future<void> refresh() async {
+  Future<void> reload() async {
     try {
       final result = await _repository.fetchOrders(deliveryDate: _dateKey);
       orders.assignAll(result);

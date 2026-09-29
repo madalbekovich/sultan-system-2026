@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../../core/get_utils.dart';
 import '../../../data/products_repository.dart';
+import '../../../models/product.dart';
 import '../../../widgets/status_views.dart';
 import 'catalog_controller.dart';
 import 'product_form_sheet.dart';
@@ -15,7 +16,7 @@ class CatalogScreen extends StatelessWidget {
     final controller = putOnce(
       () => CatalogController(Get.find<ProductsRepository>()),
       tag: 'catalog',
-    )..refresh();
+    )..reload();
 
     return Scaffold(
       appBar: AppBar(title: const Text('Product Catalog')),
@@ -32,10 +33,10 @@ class CatalogScreen extends StatelessWidget {
                 return const LoadingView();
               }
               if (controller.products.isEmpty) {
-                return ErrorView(message: 'No products yet.', onRetry: controller.refresh);
+                return ErrorView(message: 'No products yet.', onRetry: controller.reload);
               }
               return RefreshIndicator(
-                onRefresh: controller.refresh,
+                onRefresh: controller.reload,
                 child: ListView.separated(
                   itemCount: controller.products.length,
                   separatorBuilder: (_, __) => const Divider(height: 1),

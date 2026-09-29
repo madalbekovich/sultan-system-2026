@@ -28,10 +28,10 @@ class ManagerDashboardController extends GetxController {
     super.onInit();
     summary.value = _repository.cachedSummary(_todayKey);
     todaysOrders.assignAll(_repository.cachedOrders(_todayKey));
-    refresh();
+    reload();
   }
 
-  Future<void> refresh() async {
+  Future<void> reload() async {
     isLoading.value = summary.value == null;
     try {
       final results = await Future.wait([

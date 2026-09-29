@@ -20,10 +20,10 @@ class CatalogController extends GetxController {
     products.assignAll(_repository.cachedProducts());
     categories.assignAll(_repository.cachedCategories());
     isLoading.value = products.isEmpty;
-    refresh();
+    reload();
   }
 
-  Future<void> refresh() async {
+  Future<void> reload() async {
     try {
       final results = await Future.wait([
         _repository.fetchProducts(activeOnly: false),

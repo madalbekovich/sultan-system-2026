@@ -15,10 +15,10 @@ class ClientsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    refresh();
+    reload();
   }
 
-  Future<void> refresh() async {
+  Future<void> reload() async {
     isLoading.value = true;
     try {
       clients.assignAll(await _repository.fetchClients());

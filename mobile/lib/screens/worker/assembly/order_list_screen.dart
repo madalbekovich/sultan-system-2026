@@ -16,7 +16,7 @@ class OrderListScreen extends StatelessWidget {
     final controller = putOnce(
       () => OrderListController(Get.find<OrdersRepository>()),
       tag: 'order_list',
-    )..refresh();
+    )..reload();
 
     return Scaffold(
       appBar: AppBar(title: const Text('Order Assembly')),
@@ -31,11 +31,11 @@ class OrderListScreen extends StatelessWidget {
               if (controller.orders.isEmpty) {
                 return ErrorView(
                   message: 'No orders scheduled for this day.',
-                  onRetry: controller.refresh,
+                  onRetry: controller.reload,
                 );
               }
               return RefreshIndicator(
-                onRefresh: controller.refresh,
+                onRefresh: controller.reload,
                 child: ListView.separated(
                   itemCount: controller.orders.length,
                   separatorBuilder: (_, __) => const Divider(height: 1),
@@ -49,7 +49,7 @@ class OrderListScreen extends StatelessWidget {
                       trailing: _StatusBadge(status: order.status),
                       onTap: () async {
                         await Get.to(() => OrderWeighingScreen(orderId: order.id));
-                        controller.refresh();
+                        controller.reload();
                       },
                     );
                   },
@@ -85,7 +85,10 @@ class _StatusBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(color: _color.withOpacity(0.15), borderRadius: BorderRadius.circular(12)),
+      decoration: BoxDecoration(
+        color: _color.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: Text(status.label, style: TextStyle(color: _color, fontWeight: FontWeight.bold)),
     );
   }

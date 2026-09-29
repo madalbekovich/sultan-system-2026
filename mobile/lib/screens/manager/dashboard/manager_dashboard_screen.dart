@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 
 import '../../../core/get_utils.dart';
 import '../../../data/orders_repository.dart';
-import '../../../routes/app_routes.dart';
 import '../../../widgets/status_views.dart';
 import '../catalog/catalog_screen.dart';
 import '../clients/clients_screen.dart';
@@ -18,7 +17,7 @@ class ManagerDashboardScreen extends StatelessWidget {
     final controller = putOnce(
       () => ManagerDashboardController(Get.find<OrdersRepository>()),
       tag: 'manager_dashboard',
-    )..refresh();
+    )..reload();
 
     return Scaffold(
       appBar: AppBar(
@@ -46,7 +45,7 @@ class ManagerDashboardScreen extends StatelessWidget {
           return const LoadingView();
         }
         return RefreshIndicator(
-          onRefresh: controller.refresh,
+          onRefresh: controller.reload,
           child: ListView(
             padding: const EdgeInsets.all(16),
             children: [

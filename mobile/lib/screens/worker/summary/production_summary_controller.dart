@@ -25,8 +25,8 @@ class ProductionSummaryController extends GetxController {
   void onInit() {
     super.onInit();
     _loadFromCache();
-    refresh();
-    _pollTimer = Timer.periodic(AppConfig.summaryPollInterval, (_) => refresh(silent: true));
+    reload();
+    _pollTimer = Timer.periodic(AppConfig.summaryPollInterval, (_) => reload(silent: true));
   }
 
   @override
@@ -43,16 +43,16 @@ class ProductionSummaryController extends GetxController {
   void showToday() {
     selectedDate.value = DateTime.now();
     _loadFromCache();
-    refresh();
+    reload();
   }
 
   void showTomorrow() {
     selectedDate.value = DateTime.now().add(const Duration(days: 1));
     _loadFromCache();
-    refresh();
+    reload();
   }
 
-  Future<void> refresh({bool silent = false}) async {
+  Future<void> reload({bool silent = false}) async {
     if (!silent) isLoading.value = true;
     try {
       final result = await _repository.fetchSummary(_dateKey);

@@ -33,7 +33,7 @@ Future<void> showProductFormSheet(BuildContext context, CatalogController contro
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<int>(
-                value: categoryId,
+                initialValue: categoryId,
                 decoration: const InputDecoration(labelText: 'Category'),
                 items: controller.categories
                     .map((c) => DropdownMenuItem(value: c.id, child: Text(c.name)))

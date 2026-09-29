@@ -15,7 +15,7 @@ class ProductionSummaryScreen extends StatelessWidget {
     final controller = putOnce(
       () => ProductionSummaryController(Get.find<OrdersRepository>()),
       tag: 'production_summary',
-    )..refresh(silent: true);
+    )..reload(silent: true);
 
     return Scaffold(
       appBar: AppBar(
@@ -40,15 +40,15 @@ class ProductionSummaryScreen extends StatelessWidget {
               final summary = controller.summary.value;
               if (summary == null) {
                 return ErrorView(
-                  message: 'No data yet. Pull to refresh once online.',
-                  onRetry: controller.refresh,
+                  message: 'No data yet. Pull to reload once online.',
+                  onRetry: controller.reload,
                 );
               }
               if (summary.products.isEmpty) {
                 return const Center(child: Text('No orders for this day yet.'));
               }
               return RefreshIndicator(
-                onRefresh: controller.refresh,
+                onRefresh: controller.reload,
                 child: ListView.separated(
                   padding: const EdgeInsets.all(16),
                   itemCount: summary.products.length,

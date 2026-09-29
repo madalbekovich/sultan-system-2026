@@ -14,20 +14,20 @@ class ClientsScreen extends StatelessWidget {
     final controller = putOnce(
       () => ClientsController(Get.find<ClientsRepository>()),
       tag: 'clients',
-    )..refresh();
+    )..reload();
 
     return Scaffold(
       appBar: AppBar(title: const Text('Clients')),
       body: Obx(() {
         if (controller.isLoading.value) return const LoadingView();
         if (controller.errorMessage.value != null) {
-          return ErrorView(message: controller.errorMessage.value!, onRetry: controller.refresh);
+          return ErrorView(message: controller.errorMessage.value!, onRetry: controller.reload);
         }
         if (controller.clients.isEmpty) {
           return const Center(child: Text('No clients yet.'));
         }
         return RefreshIndicator(
-          onRefresh: controller.refresh,
+          onRefresh: controller.reload,
           child: ListView.separated(
             itemCount: controller.clients.length,
             separatorBuilder: (_, __) => const Divider(height: 1),
