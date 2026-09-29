@@ -6,7 +6,7 @@ UnitType unitTypeFromJson(String value) =>
 String unitTypeToJson(UnitType unit) => unit == UnitType.pcs ? 'PCS' : 'KG';
 
 extension UnitTypeLabel on UnitType {
-  String get label => this == UnitType.pcs ? 'pcs' : 'kg';
+  String get label => this == UnitType.pcs ? 'шт' : 'кг';
 }
 
 class Product {

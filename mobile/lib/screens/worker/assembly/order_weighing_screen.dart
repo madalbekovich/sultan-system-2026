@@ -19,21 +19,21 @@ class OrderWeighingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Weigh & Assemble')),
+      appBar: AppBar(title: const Text('Взвешивание и сборка')),
       body: Obx(() {
         if (controller.isLoading.value && controller.order.value == null) {
           return const LoadingView();
         }
         final order = controller.order.value;
         if (order == null) {
-          return ErrorView(message: controller.errorMessage.value ?? 'Order not found.');
+          return ErrorView(message: controller.errorMessage.value ?? 'Заказ не найден.');
         }
         return Column(
           children: [
             Padding(
               padding: const EdgeInsets.all(16),
               child: Text(
-                order.clientName ?? 'Client #${order.clientId}',
+                order.clientName ?? 'Клиент №${order.clientId}',
                 style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
             ),
@@ -55,7 +55,7 @@ class OrderWeighingScreen extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Total', style: TextStyle(fontSize: 20)),
+                      const Text('Итого', style: TextStyle(fontSize: 20)),
                       Text(
                         controller.liveTotal.toStringAsFixed(2),
                         style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
@@ -65,8 +65,8 @@ class OrderWeighingScreen extends StatelessWidget {
                   const SizedBox(height: 12),
                   BigButton(
                     label: order.status == OrderStatus.ready
-                        ? 'Ready for shipping ✓'
-                        : 'Mark Assembled / Ready for Shipping',
+                        ? 'Готов к отгрузке ✓'
+                        : 'Отметить как собранный / готовый',
                     icon: Icons.check_circle,
                     color: order.status == OrderStatus.ready ? Colors.green : null,
                     onPressed: order.status == OrderStatus.ready ? null : controller.markReady,
@@ -111,10 +111,10 @@ class _WeighingRowState extends State<_WeighingRow> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          item.productName ?? 'Product #${item.productId}',
+          item.productName ?? 'Товар №${item.productId}',
           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
         ),
-        Text('Planned: ${item.plannedQty}', style: TextStyle(color: Colors.grey.shade600)),
+        Text('План: ${item.plannedQty}', style: TextStyle(color: Colors.grey.shade600)),
         const SizedBox(height: 8),
         Row(
           children: [
@@ -124,7 +124,7 @@ class _WeighingRowState extends State<_WeighingRow> {
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 style: const TextStyle(fontSize: 24),
                 decoration: const InputDecoration(
-                  labelText: 'Actual weighed qty',
+                  labelText: 'Фактический вес',
                   border: OutlineInputBorder(),
                 ),
                 onSubmitted: (_) => _submit(),

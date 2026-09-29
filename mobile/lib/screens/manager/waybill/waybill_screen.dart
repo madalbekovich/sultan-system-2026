@@ -22,7 +22,7 @@ class _WaybillScreenState extends State<WaybillScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Waybill (Накладная)')),
+      appBar: AppBar(title: const Text('Накладная')),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Center(
@@ -34,8 +34,8 @@ class _WaybillScreenState extends State<WaybillScreen> {
                 TextField(
                   controller: _orderIdController,
                   decoration: const InputDecoration(
-                    labelText: 'Order #',
-                    hintText: 'e.g. 42',
+                    labelText: 'Номер заказа',
+                    hintText: 'например, 42',
                   ),
                   keyboardType: TextInputType.number,
                 ),
@@ -52,7 +52,7 @@ class _WaybillScreenState extends State<WaybillScreen> {
                     height: 52,
                     child: ElevatedButton.icon(
                       icon: const Icon(Icons.print),
-                      label: const Text('Preview / Print'),
+                      label: const Text('Предпросмотр / Печать'),
                       onPressed: () => _withBytes((bytes) => Printing.layoutPdf(
                             onLayout: (_) async => Uint8List.fromList(bytes),
                           )),
@@ -64,7 +64,7 @@ class _WaybillScreenState extends State<WaybillScreen> {
                     height: 52,
                     child: OutlinedButton.icon(
                       icon: const Icon(Icons.share),
-                      label: const Text('Share (WhatsApp, etc.)'),
+                      label: const Text('Отправить (WhatsApp и т.д.)'),
                       onPressed: () => _withBytes((bytes) => Printing.sharePdf(
                             bytes: Uint8List.fromList(bytes),
                             filename: 'waybill-${_orderIdController.text.trim()}.pdf',
@@ -83,7 +83,7 @@ class _WaybillScreenState extends State<WaybillScreen> {
   Future<void> _withBytes(Future<void> Function(List<int> bytes) action) async {
     final orderId = int.tryParse(_orderIdController.text.trim());
     if (orderId == null) {
-      setState(() => _error = 'Enter a valid order number.');
+      setState(() => _error = 'Введите корректный номер заказа.');
       return;
     }
     setState(() {
@@ -96,7 +96,7 @@ class _WaybillScreenState extends State<WaybillScreen> {
     } on ApiException catch (e) {
       setState(() => _error = e.message);
     } catch (_) {
-      setState(() => _error = 'Could not fetch the waybill.');
+      setState(() => _error = 'Не удалось получить накладную.');
     } finally {
       setState(() => _isLoading = false);
     }

@@ -7,6 +7,10 @@ import httpx
 from bot.config import settings
 
 
+def unit_label(unit_type: str) -> str:
+    return "кг" if unit_type == "KG" else "шт"
+
+
 @dataclass
 class Category:
     id: int

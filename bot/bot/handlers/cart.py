@@ -5,7 +5,7 @@ from aiogram import Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 
-from bot.api_client import ApiError, OrderItemIn, api_client
+from bot.api_client import ApiError, OrderItemIn, api_client, unit_label
 from bot.keyboards import cart_keyboard
 
 router = Router(name="cart")
@@ -19,8 +19,8 @@ def _format_cart(cart: list[dict]) -> str:
         price = Decimal(entry["price_per_unit"])
         line_total = qty * price
         total += line_total
-        lines.append(f"• {entry['name']}: {qty} {entry['unit_type']} = {line_total}")
-    lines.append(f"\n*Total: {total}*")
+        lines.append(f"• {entry['name']}: {qty} {unit_label(entry['unit_type'])} = {line_total}")
+    lines.append(f"\n*Итого: {total}*")
     return "\n".join(lines)
 
 
@@ -28,16 +28,16 @@ async def show_cart(message: Message, state: FSMContext) -> None:
     data = await state.get_data()
     cart = data.get("cart", [])
     if not cart:
-        text = "🛒 Your cart is empty."
+        text = "🛒 Ваша корзина пуста."
     else:
-        text = "🛒 Your cart:\n\n" + _format_cart(cart)
+        text = "🛒 Ваша корзина:\n\n" + _format_cart(cart)
     await message.answer(text, reply_markup=cart_keyboard(bool(cart)), parse_mode="Markdown")
 
 
 @router.callback_query(lambda c: c.data == "clear_cart")
 async def clear_cart(callback: CallbackQuery, state: FSMContext) -> None:
     await state.update_data(cart=[])
-    await callback.answer("Cart cleared.")
+    await callback.answer("Корзина очищена.")
     await show_cart(callback.message, state)
 
 
@@ -46,7 +46,7 @@ async def confirm_order(callback: CallbackQuery, state: FSMContext) -> None:
     data = await state.get_data()
     cart = data.get("cart", [])
     if not cart:
-        await callback.answer("Cart is empty.", show_alert=True)
+        await callback.answer("Корзина пуста.", show_alert=True)
         return
 
     items = [
@@ -61,14 +61,14 @@ async def confirm_order(callback: CallbackQuery, state: FSMContext) -> None:
     except ApiError:
         await callback.answer()
         await callback.message.answer(
-            "⚠️ Something went wrong placing your order. Please try again."
+            "⚠️ Что-то пошло не так при оформлении заказа. Попробуйте ещё раз."
         )
         return
 
-    await callback.answer("Order placed!")
+    await callback.answer("Заказ оформлен!")
     await state.update_data(cart=[])
     await callback.message.answer(
-        f"✅ Order #{order['id']} placed for {delivery_date.isoformat()}!\n"
-        f"Total: {order['total_amount']}\n\n"
-        f"We'll notify you once it's ready. Send /start to order again."
+        f"✅ Заказ №{order['id']} оформлен на {delivery_date.isoformat()}!\n"
+        f"Сумма: {order['total_amount']}\n\n"
+        f"Мы сообщим, когда он будет готов. Отправьте /start, чтобы сделать новый заказ."
     )

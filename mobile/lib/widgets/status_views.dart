@@ -26,7 +26,7 @@ class ErrorView extends StatelessWidget {
             Text(message, textAlign: TextAlign.center),
             if (onRetry != null) ...[
               const SizedBox(height: 12),
-              ElevatedButton(onPressed: onRetry, child: const Text('Retry')),
+              ElevatedButton(onPressed: onRetry, child: const Text('Повторить')),
             ],
           ],
         ),
@@ -45,7 +45,7 @@ class OfflineBanner extends StatelessWidget {
       color: Colors.orange.shade700,
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: const Text(
-        'Offline — showing last synced data',
+        'Нет сети — показаны последние сохранённые данные',
         textAlign: TextAlign.center,
         style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
       ),

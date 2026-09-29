@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../core/get_utils.dart';
+import '../../../core/ru_text.dart';
 import '../../../data/orders_repository.dart';
 import '../../../routes/app_routes.dart';
 import '../../../widgets/status_views.dart';
@@ -19,11 +20,11 @@ class ProductionSummaryScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Total Weight Needed'),
+        title: const Text('Сколько всего нужно'),
         actions: [
           IconButton(
             icon: const Icon(Icons.list_alt),
-            tooltip: 'Order assembly',
+            tooltip: 'Сборка заказов',
             onPressed: () => Get.toNamed(AppRoutes.workerAssembly),
           ),
         ],
@@ -40,12 +41,12 @@ class ProductionSummaryScreen extends StatelessWidget {
               final summary = controller.summary.value;
               if (summary == null) {
                 return ErrorView(
-                  message: 'No data yet. Pull to reload once online.',
+                  message: 'Пока нет данных. Потяните вниз, чтобы обновить.',
                   onRetry: controller.reload,
                 );
               }
               if (summary.products.isEmpty) {
-                return const Center(child: Text('No orders for this day yet.'));
+                return const Center(child: Text('На этот день заказов пока нет.'));
               }
               return RefreshIndicator(
                 onRefresh: controller.reload,
@@ -67,14 +68,14 @@ class ProductionSummaryScreen extends StatelessWidget {
                                 style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
                               ),
                               Text(
-                                '${entry.clientCount} client${entry.clientCount == 1 ? '' : 's'}',
+                                clientsCountRu(entry.clientCount),
                                 style: TextStyle(color: Colors.grey.shade600),
                               ),
                             ],
                           ),
                         ),
                         Text(
-                          '${entry.totalPlannedQty} ${entry.unitType.toLowerCase()}',
+                          '${entry.totalPlannedQty} ${unitLabelRu(entry.unitType)}',
                           style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                         ),
                       ],
@@ -107,7 +108,7 @@ class _DateTabs extends StatelessWidget {
           children: [
             Expanded(
               child: ChoiceChip(
-                label: const Text('Today', style: TextStyle(fontSize: 16)),
+                label: const Text('Сегодня', style: TextStyle(fontSize: 16)),
                 selected: isToday,
                 onSelected: (_) => controller.showToday(),
               ),
@@ -115,7 +116,7 @@ class _DateTabs extends StatelessWidget {
             const SizedBox(width: 12),
             Expanded(
               child: ChoiceChip(
-                label: const Text('Tomorrow', style: TextStyle(fontSize: 16)),
+                label: const Text('Завтра', style: TextStyle(fontSize: 16)),
                 selected: !isToday,
                 onSelected: (_) => controller.showTomorrow(),
               ),

@@ -36,7 +36,7 @@ class OrderWeighingController extends GetxController {
     try {
       order.value = await _repository.fetchOrder(orderId);
     } catch (_) {
-      errorMessage.value = 'Could not load order.';
+      errorMessage.value = 'Не удалось загрузить заказ.';
     } finally {
       isLoading.value = false;
     }
@@ -47,7 +47,7 @@ class OrderWeighingController extends GetxController {
     try {
       order.value = await _repository.updateItemWeight(itemId, actualQty);
     } catch (_) {
-      errorMessage.value = 'Could not save weight — will retry when online.';
+      errorMessage.value = 'Не удалось сохранить вес — повторим при появлении сети.';
     } finally {
       savingItemIds.remove(itemId);
     }
@@ -57,7 +57,7 @@ class OrderWeighingController extends GetxController {
     try {
       order.value = await _repository.updateOrderStatus(orderId, OrderStatus.ready);
     } catch (_) {
-      errorMessage.value = 'Could not update status.';
+      errorMessage.value = 'Не удалось обновить статус.';
     }
   }
 }

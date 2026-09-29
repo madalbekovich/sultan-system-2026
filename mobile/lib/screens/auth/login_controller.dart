@@ -25,7 +25,7 @@ class LoginController extends GetxController {
     } on ApiException catch (e) {
       errorMessage.value = e.message;
     } catch (_) {
-      errorMessage.value = 'Could not reach the server. Check your connection.';
+      errorMessage.value = 'Не удалось связаться с сервером. Проверьте подключение.';
     } finally {
       isLoading.value = false;
     }

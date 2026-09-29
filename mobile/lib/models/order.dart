@@ -17,13 +17,13 @@ extension OrderStatusLabel on OrderStatus {
   String get label {
     switch (this) {
       case OrderStatus.pending:
-        return 'Pending';
+        return 'Ожидает';
       case OrderStatus.inAssembly:
-        return 'In assembly';
+        return 'В сборке';
       case OrderStatus.ready:
-        return 'Ready';
+        return 'Готов';
       case OrderStatus.dispatched:
-        return 'Dispatched';
+        return 'Отгружен';
     }
   }
 }

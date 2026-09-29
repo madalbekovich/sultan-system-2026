@@ -25,16 +25,16 @@ Future<void> showProductFormSheet(BuildContext context, CatalogController contro
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('New product', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              const Text('Новый товар', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
               const SizedBox(height: 16),
               TextField(
                 controller: nameController,
-                decoration: const InputDecoration(labelText: 'Name'),
+                decoration: const InputDecoration(labelText: 'Название'),
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<int>(
                 initialValue: categoryId,
-                decoration: const InputDecoration(labelText: 'Category'),
+                decoration: const InputDecoration(labelText: 'Категория'),
                 items: controller.categories
                     .map((c) => DropdownMenuItem(value: c.id, child: Text(c.name)))
                     .toList(),
@@ -46,7 +46,7 @@ Future<void> showProductFormSheet(BuildContext context, CatalogController contro
                   Expanded(
                     child: TextField(
                       controller: priceController,
-                      decoration: const InputDecoration(labelText: 'Price per unit'),
+                      decoration: const InputDecoration(labelText: 'Цена за единицу'),
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
                     ),
                   ),
@@ -54,8 +54,8 @@ Future<void> showProductFormSheet(BuildContext context, CatalogController contro
                   DropdownButton<UnitType>(
                     value: unitType,
                     items: const [
-                      DropdownMenuItem(value: UnitType.kg, child: Text('kg')),
-                      DropdownMenuItem(value: UnitType.pcs, child: Text('pcs')),
+                      DropdownMenuItem(value: UnitType.kg, child: Text('кг')),
+                      DropdownMenuItem(value: UnitType.pcs, child: Text('шт')),
                     ],
                     onChanged: (value) => setState(() => unitType = value ?? UnitType.kg),
                   ),
@@ -83,7 +83,7 @@ Future<void> showProductFormSheet(BuildContext context, CatalogController contro
                     );
                     if (context.mounted) Navigator.of(context).pop();
                   },
-                  child: const Text('Save'),
+                  child: const Text('Сохранить'),
                 ),
               ),
             ],

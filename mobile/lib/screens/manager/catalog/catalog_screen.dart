@@ -19,7 +19,7 @@ class CatalogScreen extends StatelessWidget {
     )..reload();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Product Catalog')),
+      appBar: AppBar(title: const Text('Каталог товаров')),
       floatingActionButton: FloatingActionButton(
         onPressed: () => showProductFormSheet(context, controller),
         child: const Icon(Icons.add),
@@ -33,7 +33,7 @@ class CatalogScreen extends StatelessWidget {
                 return const LoadingView();
               }
               if (controller.products.isEmpty) {
-                return ErrorView(message: 'No products yet.', onRetry: controller.reload);
+                return ErrorView(message: 'Пока нет товаров.', onRetry: controller.reload);
               }
               return RefreshIndicator(
                 onRefresh: controller.reload,

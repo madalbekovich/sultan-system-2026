@@ -17,14 +17,14 @@ class ClientsScreen extends StatelessWidget {
     )..reload();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Clients')),
+      appBar: AppBar(title: const Text('Клиенты')),
       body: Obx(() {
         if (controller.isLoading.value) return const LoadingView();
         if (controller.errorMessage.value != null) {
           return ErrorView(message: controller.errorMessage.value!, onRetry: controller.reload);
         }
         if (controller.clients.isEmpty) {
-          return const Center(child: Text('No clients yet.'));
+          return const Center(child: Text('Пока нет клиентов.'));
         }
         return RefreshIndicator(
           onRefresh: controller.reload,

@@ -28,7 +28,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final targetRoute = (Get.arguments as String?) ?? LoginController.workerHome;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Staff login')),
+      appBar: AppBar(title: const Text('Вход для сотрудников')),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Center(
@@ -39,13 +39,13 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 TextField(
                   controller: _usernameController,
-                  decoration: const InputDecoration(labelText: 'Username'),
+                  decoration: const InputDecoration(labelText: 'Логин'),
                   textInputAction: TextInputAction.next,
                 ),
                 const SizedBox(height: 12),
                 TextField(
                   controller: _passwordController,
-                  decoration: const InputDecoration(labelText: 'Password'),
+                  decoration: const InputDecoration(labelText: 'Пароль'),
                   obscureText: true,
                   onSubmitted: (_) => _submit(targetRoute),
                 ),
@@ -58,7 +58,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           height: 56,
                           child: ElevatedButton(
                             onPressed: () => _submit(targetRoute),
-                            child: const Text('Log in', style: TextStyle(fontSize: 18)),
+                            child: const Text('Войти', style: TextStyle(fontSize: 18)),
                           ),
                         ),
                 ),

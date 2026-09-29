@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../core/get_utils.dart';
+import '../../../core/ru_text.dart';
 import '../../../data/orders_repository.dart';
 import '../../../models/order.dart';
 import '../../../widgets/status_views.dart';
@@ -19,7 +20,7 @@ class OrderListScreen extends StatelessWidget {
     )..reload();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Order Assembly')),
+      appBar: AppBar(title: const Text('Сборка заказов')),
       body: Column(
         children: [
           Obx(() => controller.isOffline.value ? const OfflineBanner() : const SizedBox.shrink()),
@@ -30,7 +31,7 @@ class OrderListScreen extends StatelessWidget {
               }
               if (controller.orders.isEmpty) {
                 return ErrorView(
-                  message: 'No orders scheduled for this day.',
+                  message: 'На этот день заказов не запланировано.',
                   onRetry: controller.reload,
                 );
               }
@@ -43,9 +44,9 @@ class OrderListScreen extends StatelessWidget {
                     final order = controller.orders[index];
                     return ListTile(
                       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                      title: Text(order.clientName ?? 'Client #${order.clientId}',
+                      title: Text(order.clientName ?? 'Клиент №${order.clientId}',
                           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-                      subtitle: Text('${order.items.length} item(s) · ${order.status.label}'),
+                      subtitle: Text('${itemsCountRu(order.items.length)} · ${order.status.label}'),
                       trailing: _StatusBadge(status: order.status),
                       onTap: () async {
                         await Get.to(() => OrderWeighingScreen(orderId: order.id));

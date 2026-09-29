@@ -24,7 +24,7 @@ class ClientsController extends GetxController {
       clients.assignAll(await _repository.fetchClients());
       errorMessage.value = null;
     } catch (_) {
-      errorMessage.value = 'Could not load clients.';
+      errorMessage.value = 'Не удалось загрузить клиентов.';
     } finally {
       isLoading.value = false;
     }

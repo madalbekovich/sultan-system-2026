@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../core/get_utils.dart';
+import '../../../core/ru_text.dart';
 import '../../../data/orders_repository.dart';
 import '../../../widgets/status_views.dart';
 import '../catalog/catalog_screen.dart';
@@ -21,21 +22,21 @@ class ManagerDashboardScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Manager Dashboard'),
+        title: const Text('Панель руководителя'),
         actions: [
           IconButton(
             icon: const Icon(Icons.inventory_2),
-            tooltip: 'Catalog',
+            tooltip: 'Каталог',
             onPressed: () => Get.to(() => const CatalogScreen()),
           ),
           IconButton(
             icon: const Icon(Icons.people),
-            tooltip: 'Clients',
+            tooltip: 'Клиенты',
             onPressed: () => Get.to(() => const ClientsScreen()),
           ),
           IconButton(
             icon: const Icon(Icons.receipt_long),
-            tooltip: 'Waybill',
+            tooltip: 'Накладная',
             onPressed: () => Get.to(() => const WaybillScreen()),
           ),
         ],
@@ -55,14 +56,14 @@ class ManagerDashboardScreen extends StatelessWidget {
                 children: [
                   Expanded(
                     child: _StatCard(
-                      label: "Today's sales",
+                      label: 'Продажи за сегодня',
                       value: controller.totalSalesToday.toStringAsFixed(0),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: _StatCard(
-                      label: 'Dispatched',
+                      label: 'Отгружено',
                       value:
                           '${controller.dispatchedCount}/${controller.todaysOrders.length}',
                     ),
@@ -70,14 +71,14 @@ class ManagerDashboardScreen extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 24),
-              const Text('Weight by product', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const Text('Вес по товарам', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               ...?controller.summary.value?.products.map(
                 (entry) => ListTile(
                   title: Text(entry.productName),
-                  subtitle: Text('${entry.clientCount} clients'),
+                  subtitle: Text(clientsCountRu(entry.clientCount)),
                   trailing: Text(
-                    '${entry.totalPlannedQty} ${entry.unitType.toLowerCase()}',
+                    '${entry.totalPlannedQty} ${unitLabelRu(entry.unitType)}',
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),

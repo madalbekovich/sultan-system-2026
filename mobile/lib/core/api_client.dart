@@ -44,7 +44,7 @@ class ApiClient {
     final data = error.response?.data;
     final detail = data is Map && data['detail'] != null
         ? data['detail'].toString()
-        : error.message ?? 'Network error';
+        : error.message ?? 'Ошибка сети';
     return ApiException(error.response?.statusCode, detail);
   }
 

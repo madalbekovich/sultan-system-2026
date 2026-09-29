@@ -23,13 +23,13 @@ class ModeSelectScreen extends StatelessWidget {
                 const Icon(Icons.factory, size: 72, color: Colors.deepOrange),
                 const SizedBox(height: 24),
                 BigButton(
-                  label: 'Factory / Worker Mode',
+                  label: 'Режим цеха / рабочего',
                   icon: Icons.scale,
                   onPressed: () => _enter(AppRoutes.workerSummary),
                 ),
                 const SizedBox(height: 16),
                 BigButton(
-                  label: 'Manager / Owner Mode',
+                  label: 'Режим руководителя',
                   icon: Icons.dashboard,
                   onPressed: () => _enter(AppRoutes.managerDashboard),
                 ),

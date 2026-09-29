@@ -4,7 +4,7 @@ from aiogram import Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 
-from bot.api_client import api_client
+from bot.api_client import api_client, unit_label
 from bot.keyboards import categories_keyboard, products_keyboard
 from bot.states import OrderFlow
 
@@ -14,10 +14,10 @@ router = Router(name="catalog")
 async def show_categories(message: Message, state: FSMContext) -> None:
     categories = await api_client.list_categories()
     if not categories:
-        await message.answer("No categories available right now — please try later.")
+        await message.answer("Категории пока недоступны — попробуйте позже.")
         return
     await state.set_state(OrderFlow.browsing_category)
-    await message.answer("📋 Categories:", reply_markup=categories_keyboard(categories))
+    await message.answer("📋 Категории:", reply_markup=categories_keyboard(categories))
 
 
 @router.callback_query(lambda c: c.data == "back_to_categories")
@@ -32,11 +32,11 @@ async def show_products(callback: CallbackQuery, state: FSMContext) -> None:
     products = await api_client.list_products(category_id=category_id)
     await callback.answer()
     if not products:
-        await callback.message.answer("No products in this category right now.")
+        await callback.message.answer("В этой категории пока нет товаров.")
         return
     await state.set_state(OrderFlow.browsing_product)
     await state.update_data(category_id=category_id)
-    await callback.message.answer("🥩 Products:", reply_markup=products_keyboard(products))
+    await callback.message.answer("🥩 Товары:", reply_markup=products_keyboard(products))
 
 
 @router.callback_query(lambda c: c.data and c.data.startswith("prod:"))
@@ -46,7 +46,7 @@ async def choose_product(callback: CallbackQuery, state: FSMContext) -> None:
     products = await api_client.list_products(category_id=data["category_id"])
     product = next((p for p in products if p.id == product_id), None)
     if product is None:
-        await callback.answer("Product no longer available.", show_alert=True)
+        await callback.answer("Товар больше недоступен.", show_alert=True)
         return
 
     await callback.answer()
@@ -60,8 +60,8 @@ async def choose_product(callback: CallbackQuery, state: FSMContext) -> None:
     )
     await state.set_state(OrderFlow.entering_qty)
     await callback.message.answer(
-        f"How many {product.unit_type} of *{product.name}* do you need?\n"
-        f"Just type a number, e.g. `12.5`.",
+        f"Сколько нужно *{product.name}* ({unit_label(product.unit_type)})?\n"
+        f"Просто введите число, например `12.5`.",
         parse_mode="Markdown",
     )
 
@@ -73,7 +73,7 @@ async def enter_quantity(message: Message, state: FSMContext) -> None:
         if qty <= 0:
             raise InvalidOperation
     except InvalidOperation:
-        await message.answer("Please send a valid positive number, e.g. `12.5`.")
+        await message.answer("Введите корректное положительное число, например `12.5`.")
         return
 
     data = await state.get_data()
