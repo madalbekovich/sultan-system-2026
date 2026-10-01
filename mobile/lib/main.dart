@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import 'core/api_client.dart';
 import 'core/storage.dart';
+import 'core/theme.dart';
 import 'data/auth_repository.dart';
 import 'data/clients_repository.dart';
 import 'data/orders_repository.dart';
@@ -40,11 +41,7 @@ class SultanSystemApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'Sultan System',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorSchemeSeed: Colors.deepOrange,
-        useMaterial3: true,
-        visualDensity: VisualDensity.standard,
-      ),
+      theme: buildAppTheme(),
       initialRoute: AppRoutes.modeSelect,
       getPages: [
         GetPage(name: AppRoutes.modeSelect, page: () => const ModeSelectScreen()),

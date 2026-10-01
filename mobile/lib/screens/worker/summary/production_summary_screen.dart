@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../../core/get_utils.dart';
 import '../../../core/ru_text.dart';
+import '../../../core/theme.dart';
 import '../../../data/orders_repository.dart';
 import '../../../routes/app_routes.dart';
 import '../../../widgets/status_views.dart';
@@ -53,32 +54,59 @@ class ProductionSummaryScreen extends StatelessWidget {
                 child: ListView.separated(
                   padding: const EdgeInsets.all(16),
                   itemCount: summary.products.length,
-                  separatorBuilder: (_, __) => const Divider(height: 24),
+                  separatorBuilder: (_, __) => const SizedBox(height: 10),
                   itemBuilder: (context, index) {
                     final entry = summary.products[index];
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                entry.productName,
-                                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-                              ),
-                              Text(
-                                clientsCountRu(entry.clientCount),
-                                style: TextStyle(color: Colors.grey.shade600),
-                              ),
-                            ],
+                    return Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.04),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
                           ),
-                        ),
-                        Text(
-                          '${entry.totalPlannedQty} ${unitLabelRu(entry.unitType)}',
-                          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                        ),
-                      ],
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 44,
+                            height: 44,
+                            decoration: const BoxDecoration(
+                              color: BrandColors.yellow,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.scale, color: BrandColors.black, size: 22),
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  entry.productName,
+                                  style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+                                ),
+                                Text(
+                                  clientsCountRu(entry.clientCount),
+                                  style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Text(
+                            '${entry.totalPlannedQty} ${unitLabelRu(entry.unitType)}',
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: BrandColors.redDark,
+                            ),
+                          ),
+                        ],
+                      ),
                     );
                   },
                 ),

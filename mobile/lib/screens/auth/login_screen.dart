@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../widgets/brand_logo.dart';
 import 'login_controller.dart';
 
 /// Expects `targetRoute` as the Get argument — where to go after a
@@ -37,6 +38,8 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                const BrandLogo(size: 72),
+                const SizedBox(height: 24),
                 TextField(
                   controller: _usernameController,
                   decoration: const InputDecoration(labelText: 'Логин'),

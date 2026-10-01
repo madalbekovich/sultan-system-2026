@@ -28,7 +28,7 @@ void main() {
     await tester.pumpWidget(const SultanSystemApp());
     await tester.pumpAndSettle();
 
-    expect(find.text('Режим цеха / рабочего'), findsOneWidget);
-    expect(find.text('Режим руководителя'), findsOneWidget);
+    expect(find.text('Цех / рабочий'), findsOneWidget);
+    expect(find.text('Руководитель'), findsOneWidget);
   });
 }
