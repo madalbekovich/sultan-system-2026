@@ -42,36 +42,34 @@ class WeekDayPicker extends StatelessWidget {
               width: 64,
               padding: const EdgeInsets.symmetric(vertical: 8),
               decoration: BoxDecoration(
-                color: isSelected ? BrandColors.red : Colors.white,
-                borderRadius: BorderRadius.circular(14),
+                color: isSelected ? BrandColors.black : Colors.white,
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(
+                  color: BrandColors.black,
+                  width: isSelected ? 2 : 1.5,
+                ),
                 boxShadow: isSelected
-                    ? []
-                    : [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.04),
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
+                    ? const [BoxShadow(color: BrandColors.yellow, offset: Offset(3, 3), blurRadius: 0)]
+                    : null,
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    label,
+                    label.toUpperCase(),
                     style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: isSelected ? Colors.white : Colors.black87,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.4,
+                      color: isSelected ? Colors.white70 : Colors.black54,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     intl.DateFormat('d.MM').format(day),
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.bold,
-                      color: isSelected ? Colors.white : BrandColors.redDark,
+                    style: numberStyle(
+                      fontSize: 14,
+                      color: isSelected ? BrandColors.yellow : BrandColors.black,
                     ),
                   ),
                 ],

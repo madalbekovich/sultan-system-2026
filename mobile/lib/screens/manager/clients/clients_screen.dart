@@ -18,7 +18,7 @@ class ClientsScreen extends StatelessWidget {
     )..reload();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Клиенты')),
+      appBar: AppBar(title: const Text('КЛИЕНТЫ')),
       body: Obx(() {
         if (controller.isLoading.value) return const LoadingView();
         if (controller.errorMessage.value != null) {

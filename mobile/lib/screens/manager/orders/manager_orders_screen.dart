@@ -7,7 +7,9 @@ import '../../../core/theme.dart';
 import '../../../core/waybill_actions.dart';
 import '../../../data/orders_repository.dart';
 import '../../../models/order.dart';
+import '../../../widgets/stamp_badge.dart';
 import '../../../widgets/status_views.dart';
+import '../../../widgets/ticket_card.dart';
 import '../../../widgets/week_day_picker.dart';
 import 'manager_orders_controller.dart';
 
@@ -22,7 +24,7 @@ class ManagerOrdersScreen extends StatelessWidget {
     )..reload();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Заказы')),
+      appBar: AppBar(title: const Text('ЗАКАЗЫ')),
       body: Column(
         children: [
           Obx(() => controller.isOffline.value ? const OfflineBanner() : const SizedBox.shrink()),
@@ -46,7 +48,7 @@ class ManagerOrdersScreen extends StatelessWidget {
                 child: ListView.separated(
                   padding: const EdgeInsets.all(16),
                   itemCount: controller.orders.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 10),
+                  separatorBuilder: (_, __) => const SizedBox(height: 14),
                   itemBuilder: (context, index) {
                     final order = controller.orders[index];
                     return _OrderCard(
@@ -76,30 +78,11 @@ class _OrderCard extends StatelessWidget {
   final bool isUpdating;
   final void Function(OrderStatus status) onStatusChange;
 
-  Color get _statusColor {
-    switch (order.status) {
-      case OrderStatus.pending:
-        return Colors.grey;
-      case OrderStatus.inAssembly:
-        return Colors.orange;
-      case OrderStatus.ready:
-        return Colors.green;
-      case OrderStatus.dispatched:
-        return Colors.blue;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 6, offset: const Offset(0, 2)),
-        ],
-      ),
+    final statusColor = orderStatusColor(order.status);
+    return TicketCard(
+      accentColor: statusColor,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -108,59 +91,58 @@ class _OrderCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   order.clientName ?? 'Клиент №${order.clientId}',
-                  style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+                  style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
                 ),
               ),
-              Text(
-                '№${order.id}',
-                style: TextStyle(color: Colors.grey.shade500, fontSize: 13),
-              ),
+              Text('№${order.id}', style: numberStyle(fontSize: 14, color: Colors.black54)),
             ],
           ),
           const SizedBox(height: 4),
-          Text(
-            '${itemsCountRu(order.items.length)} · ${order.totalAmount.toStringAsFixed(0)} сом',
-            style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+          Row(
+            children: [
+              Text(
+                '${itemsCountRu(order.items.length)} · ',
+                style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+              ),
+              Text(
+                '${order.totalAmount.toStringAsFixed(0)} сом',
+                style: numberStyle(fontSize: 14, weight: FontWeight.w700),
+              ),
+            ],
           ),
           const SizedBox(height: 12),
           Row(
             children: [
-              Expanded(
-                child: isUpdating
-                    ? const Center(child: SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2)))
-                    : PopupMenuButton<OrderStatus>(
-                        initialValue: order.status,
-                        onSelected: onStatusChange,
-                        itemBuilder: (context) => OrderStatus.values
-                            .map((s) => PopupMenuItem(value: s, child: Text(s.label)))
-                            .toList(),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: _statusColor.withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                order.status.label,
-                                style: TextStyle(color: _statusColor, fontWeight: FontWeight.bold),
-                              ),
-                              Icon(Icons.arrow_drop_down, color: _statusColor),
-                            ],
-                          ),
-                        ),
-                      ),
-              ),
+              if (isUpdating)
+                const SizedBox(
+                  height: 20,
+                  width: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              else
+                PopupMenuButton<OrderStatus>(
+                  initialValue: order.status,
+                  onSelected: onStatusChange,
+                  itemBuilder: (context) => OrderStatus.values
+                      .map((s) => PopupMenuItem(value: s, child: Text(s.label)))
+                      .toList(),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      StampBadge(label: order.status.label, color: statusColor),
+                      Icon(Icons.arrow_drop_down, color: statusColor),
+                    ],
+                  ),
+                ),
+              const Spacer(),
               IconButton(
                 tooltip: 'Печать накладной',
-                icon: const Icon(Icons.print, color: BrandColors.redDark),
+                icon: const Icon(Icons.print, color: BrandColors.black),
                 onPressed: () => WaybillActions.print(order.id),
               ),
               IconButton(
                 tooltip: 'Отправить накладную',
-                icon: const Icon(Icons.share, color: BrandColors.redDark),
+                icon: const Icon(Icons.share, color: BrandColors.black),
                 onPressed: () => WaybillActions.share(order.id),
               ),
             ],

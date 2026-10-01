@@ -7,6 +7,7 @@ import '../../../core/theme.dart';
 import '../../../data/orders_repository.dart';
 import '../../../routes/app_routes.dart';
 import '../../../widgets/status_views.dart';
+import '../../../widgets/ticket_card.dart';
 import '../../../widgets/week_day_picker.dart';
 import 'production_summary_controller.dart';
 
@@ -22,7 +23,7 @@ class ProductionSummaryScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Сколько всего нужно'),
+        title: const Text('СКОЛЬКО НУЖНО'),
         actions: [
           IconButton(
             icon: const Icon(Icons.list_alt),
@@ -61,29 +62,18 @@ class ProductionSummaryScreen extends StatelessWidget {
                   separatorBuilder: (_, __) => const SizedBox(height: 10),
                   itemBuilder: (context, index) {
                     final entry = summary.products[index];
-                    return Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.04),
-                            blurRadius: 6,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
+                    return TicketCard(
                       child: Row(
                         children: [
                           Container(
-                            width: 44,
-                            height: 44,
-                            decoration: const BoxDecoration(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
                               color: BrandColors.yellow,
+                              border: Border.all(color: BrandColors.black, width: 1.5),
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(Icons.scale, color: BrandColors.black, size: 22),
+                            child: const Icon(Icons.scale, color: BrandColors.black, size: 20),
                           ),
                           const SizedBox(width: 14),
                           Expanded(
@@ -92,7 +82,7 @@ class ProductionSummaryScreen extends StatelessWidget {
                               children: [
                                 Text(
                                   entry.productName,
-                                  style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+                                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
                                 ),
                                 Text(
                                   clientsCountRu(entry.clientCount),
@@ -103,11 +93,7 @@ class ProductionSummaryScreen extends StatelessWidget {
                           ),
                           Text(
                             '${entry.totalPlannedQty} ${unitLabelRu(entry.unitType)}',
-                            style: const TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              color: BrandColors.redDark,
-                            ),
+                            style: numberStyle(fontSize: 21, color: BrandColors.redDark),
                           ),
                         ],
                       ),

@@ -3,8 +3,10 @@ import 'package:get/get.dart';
 
 import '../../../core/get_utils.dart';
 import '../../../core/ru_text.dart';
+import '../../../core/theme.dart';
 import '../../../data/orders_repository.dart';
 import '../../../models/order.dart';
+import '../../../widgets/stamp_badge.dart';
 import '../../../widgets/status_views.dart';
 import '../../../widgets/week_day_picker.dart';
 import 'order_list_controller.dart';
@@ -21,7 +23,7 @@ class OrderListScreen extends StatelessWidget {
     )..reload();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Сборка заказов')),
+      appBar: AppBar(title: const Text('СБОРКА ЗАКАЗОВ')),
       body: Column(
         children: [
           Obx(() => controller.isOffline.value ? const OfflineBanner() : const SizedBox.shrink()),
@@ -51,8 +53,11 @@ class OrderListScreen extends StatelessWidget {
                       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                       title: Text(order.clientName ?? 'Клиент №${order.clientId}',
                           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-                      subtitle: Text('${itemsCountRu(order.items.length)} · ${order.status.label}'),
-                      trailing: _StatusBadge(status: order.status),
+                      subtitle: Text(itemsCountRu(order.items.length)),
+                      trailing: StampBadge(
+                        label: order.status.label,
+                        color: orderStatusColor(order.status),
+                      ),
                       onTap: () async {
                         await Get.to(() => OrderWeighingScreen(orderId: order.id));
                         controller.reload();
@@ -65,37 +70,6 @@ class OrderListScreen extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _StatusBadge extends StatelessWidget {
-  const _StatusBadge({required this.status});
-
-  final OrderStatus status;
-
-  Color get _color {
-    switch (status) {
-      case OrderStatus.pending:
-        return Colors.grey;
-      case OrderStatus.inAssembly:
-        return Colors.orange;
-      case OrderStatus.ready:
-        return Colors.green;
-      case OrderStatus.dispatched:
-        return Colors.blue;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: _color.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Text(status.label, style: TextStyle(color: _color, fontWeight: FontWeight.bold)),
     );
   }
 }

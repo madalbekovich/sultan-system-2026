@@ -1,70 +1,81 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '../../core/theme.dart';
 import '../../data/auth_repository.dart';
 import '../../routes/app_routes.dart';
 import '../../widgets/brand_logo.dart';
+import '../../widgets/hazard_stripe.dart';
+import '../../widgets/ticket_card.dart';
 
 class ModeSelectScreen extends StatelessWidget {
   const ModeSelectScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [BrandColors.yellow, BrandColors.cream],
-            stops: [0.0, 0.5],
-          ),
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 420),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const BrandLogo(size: 128),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'Султан Цех',
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.w800,
-                        color: BrandColors.black,
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light,
+      child: Scaffold(
+        backgroundColor: BrandColors.black,
+        body: SafeArea(
+          child: Column(
+            children: [
+              Expanded(
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 420),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const BrandLogo(size: 120),
+                          const SizedBox(height: 20),
+                          const Text(
+                            'СУЛТАН ЦЕХ',
+                            style: TextStyle(
+                              fontSize: 34,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 4,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const Text(
+                            'ПРОИЗВОДСТВЕННЫЙ УЧЁТ',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 3,
+                              color: BrandColors.yellow,
+                            ),
+                          ),
+                          const SizedBox(height: 44),
+                          _ModeTicket(
+                            number: '01',
+                            title: 'ЦЕХ',
+                            subtitle: 'Взвешивание и сборка заказов',
+                            icon: Icons.scale,
+                            accentColor: BrandColors.red,
+                            onTap: () => _enter(AppRoutes.workerSummary),
+                          ),
+                          const SizedBox(height: 18),
+                          _ModeTicket(
+                            number: '02',
+                            title: 'РУКОВОДИТЕЛЬ',
+                            subtitle: 'Продажи, заказы, каталог, клиенты',
+                            icon: Icons.dashboard_rounded,
+                            accentColor: BrandColors.yellow,
+                            onTap: () => _enter(AppRoutes.managerDashboard),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Производство и заказы в одном месте',
-                      style: TextStyle(fontSize: 14, color: Colors.black.withValues(alpha: 0.6)),
-                    ),
-                    const SizedBox(height: 40),
-                    _ModeCard(
-                      title: 'Цех / рабочий',
-                      subtitle: 'Сколько взвесить и собрать сегодня',
-                      icon: Icons.scale,
-                      color: BrandColors.red,
-                      onTap: () => _enter(AppRoutes.workerSummary),
-                    ),
-                    const SizedBox(height: 16),
-                    _ModeCard(
-                      title: 'Руководитель',
-                      subtitle: 'Продажи, каталог, клиенты, накладные',
-                      icon: Icons.dashboard_rounded,
-                      color: BrandColors.black,
-                      onTap: () => _enter(AppRoutes.managerDashboard),
-                    ),
-                  ],
+                  ),
                 ),
               ),
-            ),
+              const HazardStripe(height: 10),
+            ],
           ),
         ),
       ),
@@ -81,57 +92,62 @@ class ModeSelectScreen extends StatelessWidget {
   }
 }
 
-class _ModeCard extends StatelessWidget {
-  const _ModeCard({
+class _ModeTicket extends StatelessWidget {
+  const _ModeTicket({
+    required this.number,
     required this.title,
     required this.subtitle,
     required this.icon,
-    required this.color,
+    required this.accentColor,
     required this.onTap,
   });
 
+  final String number;
   final String title;
   final String subtitle;
   final IconData icon;
-  final Color color;
+  final Color accentColor;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(20),
-      elevation: 2,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(20),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(16)),
-                child: Icon(icon, color: Colors.white, size: 30),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(title,
-                        style: const TextStyle(fontSize: 19, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 2),
-                    Text(subtitle,
-                        style: TextStyle(fontSize: 13, color: Colors.black.withValues(alpha: 0.55))),
-                  ],
-                ),
-              ),
-              const Icon(Icons.chevron_right, color: Colors.black26),
-            ],
+    return TicketCard(
+      accentColor: accentColor,
+      onTap: onTap,
+      child: Row(
+        children: [
+          Text(
+            number,
+            style: TextStyle(
+              fontFamily: 'monospace',
+              fontSize: 34,
+              fontWeight: FontWeight.w900,
+              color: accentColor == BrandColors.yellow ? BrandColors.black : accentColor,
+              height: 1,
+            ),
           ),
-        ),
+          const SizedBox(width: 12),
+          Container(width: 2, height: 42, color: BrandColors.black),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 19,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0.8,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(subtitle, style: TextStyle(fontSize: 12.5, color: Colors.black.withValues(alpha: 0.6))),
+              ],
+            ),
+          ),
+          Icon(icon, size: 26, color: BrandColors.black),
+        ],
       ),
     );
   }

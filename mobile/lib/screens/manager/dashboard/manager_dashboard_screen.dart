@@ -6,6 +6,7 @@ import '../../../core/ru_text.dart';
 import '../../../core/theme.dart';
 import '../../../data/orders_repository.dart';
 import '../../../widgets/status_views.dart';
+import '../../../widgets/ticket_card.dart';
 import '../catalog/catalog_screen.dart';
 import '../clients/clients_screen.dart';
 import '../orders/manager_orders_screen.dart';
@@ -24,7 +25,7 @@ class ManagerDashboardScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Панель руководителя'),
+        title: const Text('РУКОВОДИТЕЛЬ'),
         actions: [
           IconButton(
             icon: const Icon(Icons.receipt_long_outlined),
@@ -82,35 +83,39 @@ class ManagerDashboardScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 28),
               Row(
                 children: [
-                  Container(
-                    width: 6,
-                    height: 20,
-                    decoration: BoxDecoration(
-                      color: BrandColors.yellow,
-                      borderRadius: BorderRadius.circular(3),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  const Text('Вес по товарам', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  Container(width: 18, height: 4, color: BrandColors.red),
+                  const SizedBox(width: 6),
+                  Text('ВЕС ПО ТОВАРАМ', style: headingStyle()),
                 ],
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 10),
               ...?controller.summary.value?.products.map(
-                (entry) => Card(
-                  margin: const EdgeInsets.only(bottom: 8),
-                  child: ListTile(
-                    leading: const CircleAvatar(
-                      backgroundColor: BrandColors.cream,
-                      child: Icon(Icons.inventory_2_outlined, color: BrandColors.redDark),
-                    ),
-                    title: Text(entry.productName),
-                    subtitle: Text(clientsCountRu(entry.clientCount)),
-                    trailing: Text(
-                      '${entry.totalPlannedQty} ${unitLabelRu(entry.unitType)}',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+                (entry) => Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: TicketCard(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(entry.productName, style: const TextStyle(fontWeight: FontWeight.w700)),
+                              Text(
+                                clientsCountRu(entry.clientCount),
+                                style: TextStyle(color: Colors.grey.shade600, fontSize: 12.5),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Text(
+                          '${entry.totalPlannedQty} ${unitLabelRu(entry.unitType)}',
+                          style: numberStyle(fontSize: 17),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -140,32 +145,27 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return TicketCard(
+      accentColor: color,
+      onTap: onTap,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              Row(
-                children: [
-                  Icon(icon, size: 18, color: color),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Text(
-                      label,
-                      style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
-                    ),
-                  ),
-                ],
+              Icon(icon, size: 16, color: color),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  label.toUpperCase(),
+                  style: TextStyle(color: Colors.grey.shade600, fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 0.4),
+                ),
               ),
-              const SizedBox(height: 8),
-              Text(value, style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: color)),
             ],
           ),
-        ),
+          const SizedBox(height: 8),
+          Text(value, style: numberStyle(fontSize: 26, color: color)),
+        ],
       ),
     );
   }

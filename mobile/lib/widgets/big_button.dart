@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../core/theme.dart';
+
 /// Large-hit-area button for factory-floor use (tablets, gloves/greasy hands).
 class BigButton extends StatelessWidget {
   const BigButton({
@@ -21,11 +23,16 @@ class BigButton extends StatelessWidget {
       height: 64,
       child: ElevatedButton.icon(
         onPressed: onPressed,
-        icon: icon != null ? Icon(icon, size: 28) : const SizedBox.shrink(),
-        label: Text(label, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        icon: icon != null ? Icon(icon, size: 26) : const SizedBox.shrink(),
+        label: Text(
+          label.toUpperCase(),
+          style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800, letterSpacing: 0.6),
+        ),
         style: ElevatedButton.styleFrom(
           backgroundColor: color,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          foregroundColor: color != null ? BrandColors.black : Colors.white,
+          side: const BorderSide(color: BrandColors.black, width: 2),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
         ),
       ),
     );

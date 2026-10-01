@@ -17,7 +17,7 @@ class _WaybillScreenState extends State<WaybillScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Накладная')),
+      appBar: AppBar(title: const Text('НАКЛАДНАЯ')),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Center(
