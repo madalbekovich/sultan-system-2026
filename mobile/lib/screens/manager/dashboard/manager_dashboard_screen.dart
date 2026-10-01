@@ -8,6 +8,7 @@ import '../../../data/orders_repository.dart';
 import '../../../widgets/status_views.dart';
 import '../catalog/catalog_screen.dart';
 import '../clients/clients_screen.dart';
+import '../orders/manager_orders_screen.dart';
 import '../waybill/waybill_screen.dart';
 import 'manager_dashboard_controller.dart';
 
@@ -25,6 +26,11 @@ class ManagerDashboardScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Панель руководителя'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.receipt_long_outlined),
+            tooltip: 'Заказы',
+            onPressed: () => Get.to(() => const ManagerOrdersScreen()),
+          ),
           IconButton(
             icon: const Icon(Icons.inventory_2),
             tooltip: 'Каталог',
@@ -71,6 +77,7 @@ class ManagerDashboardScreen extends StatelessWidget {
                           '${controller.dispatchedCount}/${controller.todaysOrders.length}',
                       icon: Icons.local_shipping_rounded,
                       color: BrandColors.black,
+                      onTap: () => Get.to(() => const ManagerOrdersScreen()),
                     ),
                   ),
                 ],
@@ -122,36 +129,42 @@ class _StatCard extends StatelessWidget {
     required this.value,
     required this.icon,
     required this.color,
+    this.onTap,
   });
 
   final String label;
   final String value;
   final IconData icon;
   final Color color;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(icon, size: 18, color: color),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    label,
-                    style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(icon, size: 18, color: color),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      label,
+                      style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                    ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(value, style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: color)),
-          ],
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(value, style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: color)),
+            ],
+          ),
         ),
       ),
     );

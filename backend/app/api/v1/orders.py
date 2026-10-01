@@ -49,13 +49,16 @@ async def orders_summary(
 async def list_orders(
     delivery_date: date | None = None,
     status: OrderStatus | None = None,
+    client_id: int | None = None,
     db: AsyncSession = Depends(get_db),
 ) -> list[OrderRead]:
-    stmt = select(Order).options(*_ORDER_LOAD_OPTIONS).order_by(Order.created_at)
+    stmt = select(Order).options(*_ORDER_LOAD_OPTIONS).order_by(Order.created_at.desc())
     if delivery_date is not None:
         stmt = stmt.where(Order.delivery_date == delivery_date)
     if status is not None:
         stmt = stmt.where(Order.status == status)
+    if client_id is not None:
+        stmt = stmt.where(Order.client_id == client_id)
     orders = (await db.execute(stmt)).scalars().all()
     return [to_order_read(order) for order in orders]
 

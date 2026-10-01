@@ -1,11 +1,6 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:printing/printing.dart';
 
-import '../../../core/api_client.dart';
-import '../../../data/orders_repository.dart';
+import '../../../core/waybill_actions.dart';
 
 class WaybillScreen extends StatefulWidget {
   const WaybillScreen({super.key});
@@ -54,9 +49,7 @@ class _WaybillScreenState extends State<WaybillScreen> {
                       child: ElevatedButton.icon(
                         icon: const Icon(Icons.print),
                         label: const Text('Предпросмотр / Печать'),
-                        onPressed: () => _withBytes((bytes) => Printing.layoutPdf(
-                              onLayout: (_) async => Uint8List.fromList(bytes),
-                            )),
+                        onPressed: () => _run(WaybillActions.print),
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -66,10 +59,7 @@ class _WaybillScreenState extends State<WaybillScreen> {
                       child: OutlinedButton.icon(
                         icon: const Icon(Icons.share),
                         label: const Text('Отправить (WhatsApp и т.д.)'),
-                        onPressed: () => _withBytes((bytes) => Printing.sharePdf(
-                              bytes: Uint8List.fromList(bytes),
-                              filename: 'waybill-${_orderIdController.text.trim()}.pdf',
-                            )),
+                        onPressed: () => _run(WaybillActions.share),
                       ),
                     ),
                   ],
@@ -82,7 +72,7 @@ class _WaybillScreenState extends State<WaybillScreen> {
     );
   }
 
-  Future<void> _withBytes(Future<void> Function(List<int> bytes) action) async {
+  Future<void> _run(Future<String?> Function(int orderId) action) async {
     final orderId = int.tryParse(_orderIdController.text.trim());
     if (orderId == null) {
       setState(() => _error = 'Введите корректный номер заказа.');
@@ -92,15 +82,10 @@ class _WaybillScreenState extends State<WaybillScreen> {
       _isLoading = true;
       _error = null;
     });
-    try {
-      final bytes = await Get.find<OrdersRepository>().fetchWaybillPdf(orderId);
-      await action(bytes);
-    } on ApiException catch (e) {
-      setState(() => _error = e.message);
-    } catch (_) {
-      setState(() => _error = 'Не удалось получить накладную.');
-    } finally {
-      setState(() => _isLoading = false);
-    }
+    final error = await action(orderId);
+    setState(() {
+      _error = error;
+      _isLoading = false;
+    });
   }
 }

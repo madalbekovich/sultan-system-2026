@@ -32,6 +32,15 @@ class OrderItemIn:
     planned_qty: Decimal
 
 
+@dataclass
+class OrderSummaryItem:
+    id: int
+    status: str
+    delivery_date: str
+    total_amount: Decimal
+    item_count: int
+
+
 class ApiError(RuntimeError):
     pass
 
@@ -76,6 +85,26 @@ class ApiClient:
             "/clients/register", json={"tg_user_id": tg_user_id, "name": name}
         )
         return response.json()["id"]
+
+    async def get_client_id_by_tg(self, tg_user_id: int) -> int | None:
+        response = await self._client.get(f"/clients/by-tg/{tg_user_id}")
+        if response.status_code == 404:
+            return None
+        response.raise_for_status()
+        return response.json()["id"]
+
+    async def list_orders_for_client(self, client_id: int) -> list[OrderSummaryItem]:
+        response = await self._get("/orders/", params={"client_id": client_id})
+        return [
+            OrderSummaryItem(
+                id=item["id"],
+                status=item["status"],
+                delivery_date=item["delivery_date"],
+                total_amount=Decimal(str(item["total_amount"])),
+                item_count=len(item["items"]),
+            )
+            for item in response.json()
+        ]
 
     async def create_order(
         self, client_id: int, delivery_date: date, items: list[OrderItemIn]

@@ -27,26 +27,50 @@ class CatalogScreen extends StatelessWidget {
       body: Column(
         children: [
           Obx(() => controller.isOffline.value ? const OfflineBanner() : const SizedBox.shrink()),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+            child: TextField(
+              onChanged: (value) => controller.searchQuery.value = value,
+              decoration: InputDecoration(
+                hintText: 'Поиск товара…',
+                prefixIcon: const Icon(Icons.search),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                contentPadding: const EdgeInsets.symmetric(vertical: 0),
+              ),
+            ),
+          ),
           Expanded(
             child: Obx(() {
               if (controller.isLoading.value && controller.products.isEmpty) {
                 return const LoadingView();
               }
-              if (controller.products.isEmpty) {
-                return ErrorView(message: 'Пока нет товаров.', onRetry: controller.reload);
+              final items = controller.filteredProducts;
+              if (items.isEmpty) {
+                return ErrorView(
+                  message: controller.products.isEmpty
+                      ? 'Пока нет товаров.'
+                      : 'Ничего не найдено.',
+                  onRetry: controller.reload,
+                );
               }
               return RefreshIndicator(
                 onRefresh: controller.reload,
                 child: ListView.separated(
-                  itemCount: controller.products.length,
+                  itemCount: items.length,
                   separatorBuilder: (_, __) => const Divider(height: 1),
                   itemBuilder: (context, index) {
-                    final product = controller.products[index];
+                    final product = items[index];
                     return ListTile(
                       title: Text(product.name),
                       subtitle: Text(
                         '${controller.categoryName(product.categoryId)} · ${product.pricePerUnit}/${product.unitType.label}',
                       ),
+                      onTap: () => showProductFormSheet(context, controller, existing: product),
                       trailing: Switch(
                         value: product.isActive,
                         onChanged: (_) => controller.toggleActive(product),

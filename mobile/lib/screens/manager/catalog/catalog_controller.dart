@@ -13,6 +13,13 @@ class CatalogController extends GetxController {
   final categories = <Category>[].obs;
   final isLoading = true.obs;
   final isOffline = false.obs;
+  final searchQuery = ''.obs;
+
+  List<Product> get filteredProducts {
+    final query = searchQuery.value.trim().toLowerCase();
+    if (query.isEmpty) return products;
+    return products.where((p) => p.name.toLowerCase().contains(query)).toList();
+  }
 
   @override
   void onInit() {
@@ -56,6 +63,12 @@ class CatalogController extends GetxController {
       product.id,
       {'is_active': !product.isActive},
     );
+    final index = products.indexWhere((p) => p.id == product.id);
+    if (index != -1) products[index] = updated;
+  }
+
+  Future<void> editProduct(Product product, Map<String, dynamic> changes) async {
+    final updated = await _repository.updateProduct(product.id, changes);
     final index = products.indexWhere((p) => p.id == product.id);
     if (index != -1) products[index] = updated;
   }

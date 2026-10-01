@@ -3,11 +3,19 @@ import 'package:flutter/material.dart';
 import '../../../models/product.dart';
 import 'catalog_controller.dart';
 
-Future<void> showProductFormSheet(BuildContext context, CatalogController controller) {
-  final nameController = TextEditingController();
-  final priceController = TextEditingController();
-  int? categoryId = controller.categories.isNotEmpty ? controller.categories.first.id : null;
-  UnitType unitType = UnitType.kg;
+/// Pass [existing] to edit a product in place; omit it to create a new one.
+Future<void> showProductFormSheet(
+  BuildContext context,
+  CatalogController controller, {
+  Product? existing,
+}) {
+  final isEditing = existing != null;
+  final nameController = TextEditingController(text: existing?.name ?? '');
+  final priceController =
+      TextEditingController(text: existing != null ? existing.pricePerUnit.toString() : '');
+  int? categoryId =
+      existing?.categoryId ?? (controller.categories.isNotEmpty ? controller.categories.first.id : null);
+  UnitType unitType = existing?.unitType ?? UnitType.kg;
 
   return showModalBottomSheet(
     context: context,
@@ -25,7 +33,10 @@ Future<void> showProductFormSheet(BuildContext context, CatalogController contro
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Новый товар', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              Text(
+                isEditing ? 'Редактировать товар' : 'Новый товар',
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 16),
               TextField(
                 controller: nameController,
@@ -71,16 +82,25 @@ Future<void> showProductFormSheet(BuildContext context, CatalogController contro
                     if (nameController.text.trim().isEmpty || price == null || categoryId == null) {
                       return;
                     }
-                    await controller.createProduct(
-                      Product(
-                        id: 0,
-                        categoryId: categoryId!,
-                        name: nameController.text.trim(),
-                        unitType: unitType,
-                        pricePerUnit: price,
-                        isActive: true,
-                      ),
-                    );
+                    if (isEditing) {
+                      await controller.editProduct(existing, {
+                        'name': nameController.text.trim(),
+                        'category_id': categoryId,
+                        'price_per_unit': price,
+                        'unit_type': unitType == UnitType.pcs ? 'PCS' : 'KG',
+                      });
+                    } else {
+                      await controller.createProduct(
+                        Product(
+                          id: 0,
+                          categoryId: categoryId!,
+                          name: nameController.text.trim(),
+                          unitType: unitType,
+                          pricePerUnit: price,
+                          isActive: true,
+                        ),
+                      );
+                    }
                     if (context.mounted) Navigator.of(context).pop();
                   },
                   child: const Text('Сохранить'),

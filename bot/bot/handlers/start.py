@@ -24,8 +24,9 @@ async def cmd_start(message: Message, state: FSMContext) -> None:
     await state.update_data(client_id=client_id, cart=[])
 
     caption = (
-        f"🐂 Добро пожаловать в Sultan System, {message.from_user.full_name}!\n"
-        f"Выберите категорию, чтобы начать заказ:"
+        f"🐂 Добро пожаловать в Султан Цех, {message.from_user.full_name}!\n"
+        f"Выберите категорию, чтобы начать заказ.\n\n"
+        f"💡 Команда /myorders покажет статус ваших заказов."
     )
     if _LOGO_PATH.exists():
         await message.answer_photo(FSInputFile(_LOGO_PATH), caption=caption)

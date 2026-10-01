@@ -36,15 +36,20 @@ class OrdersRepository {
     return summary;
   }
 
-  Future<List<Order>> fetchOrders({String? deliveryDate, String? status}) async {
+  Future<List<Order>> fetchOrders({
+    String? deliveryDate,
+    String? status,
+    int? clientId,
+  }) async {
     final query = <String, dynamic>{};
     if (deliveryDate != null) query['delivery_date'] = deliveryDate;
     if (status != null) query['status'] = status;
+    if (clientId != null) query['client_id'] = clientId;
 
     final response = await _api.get<List<dynamic>>('/orders/', query: query);
     final orders =
         response.data!.map((e) => Order.fromJson(e as Map<String, dynamic>)).toList();
-    if (deliveryDate != null) {
+    if (deliveryDate != null && clientId == null) {
       await _storage.setCache(_ordersCacheKey(deliveryDate), jsonEncode(response.data));
     }
     return orders;
