@@ -40,14 +40,8 @@ class ProductionSummaryController extends GetxController {
     if (cached != null) summary.value = cached;
   }
 
-  void showToday() {
-    selectedDate.value = DateTime.now();
-    _loadFromCache();
-    reload();
-  }
-
-  void showTomorrow() {
-    selectedDate.value = DateTime.now().add(const Duration(days: 1));
+  void showDate(DateTime date) {
+    selectedDate.value = date;
     _loadFromCache();
     reload();
   }

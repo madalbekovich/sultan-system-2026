@@ -49,6 +49,15 @@ async def confirm_order(callback: CallbackQuery, state: FSMContext) -> None:
         await callback.answer("Корзина пуста.", show_alert=True)
         return
 
+    client_id = data.get("client_id")
+    if client_id is None:
+        await callback.answer()
+        await callback.message.answer(
+            "⚠️ Сессия сброшена (например, после перезапуска бота). "
+            "Отправьте /start и соберите заказ заново."
+        )
+        return
+
     items = [
         OrderItemIn(product_id=entry["id"], planned_qty=Decimal(entry["qty"])) for entry in cart
     ]
@@ -56,7 +65,7 @@ async def confirm_order(callback: CallbackQuery, state: FSMContext) -> None:
 
     try:
         order = await api_client.create_order(
-            client_id=data["client_id"], delivery_date=delivery_date, items=items
+            client_id=client_id, delivery_date=delivery_date, items=items
         )
     except ApiError:
         await callback.answer()

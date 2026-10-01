@@ -33,7 +33,7 @@ class ModeSelectScreen extends StatelessWidget {
                     const BrandLogo(size: 128),
                     const SizedBox(height: 16),
                     const Text(
-                      'Sultan System',
+                      'Султан Цех',
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.w800,

@@ -60,4 +60,12 @@ class OrderWeighingController extends GetxController {
       errorMessage.value = 'Не удалось обновить статус.';
     }
   }
+
+  Future<void> markDispatched() async {
+    try {
+      order.value = await _repository.updateOrderStatus(orderId, OrderStatus.dispatched);
+    } catch (_) {
+      errorMessage.value = 'Не удалось обновить статус.';
+    }
+  }
 }

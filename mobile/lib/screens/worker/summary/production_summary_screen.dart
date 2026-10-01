@@ -7,6 +7,7 @@ import '../../../core/theme.dart';
 import '../../../data/orders_repository.dart';
 import '../../../routes/app_routes.dart';
 import '../../../widgets/status_views.dart';
+import '../../../widgets/week_day_picker.dart';
 import 'production_summary_controller.dart';
 
 class ProductionSummaryScreen extends StatelessWidget {
@@ -33,7 +34,10 @@ class ProductionSummaryScreen extends StatelessWidget {
       body: Column(
         children: [
           Obx(() => controller.isOffline.value ? const OfflineBanner() : const SizedBox.shrink()),
-          _DateTabs(controller: controller),
+          Obx(() => WeekDayPicker(
+                selected: controller.selectedDate.value,
+                onSelected: controller.showDate,
+              )),
           Expanded(
             child: Obx(() {
               if (controller.isLoading.value && controller.summary.value == null) {
@@ -116,42 +120,5 @@ class ProductionSummaryScreen extends StatelessWidget {
         ],
       ),
     );
-  }
-}
-
-class _DateTabs extends StatelessWidget {
-  const _DateTabs({required this.controller});
-
-  final ProductionSummaryController controller;
-
-  @override
-  Widget build(BuildContext context) {
-    return Obx(() {
-      final now = DateTime.now();
-      final isToday = controller.selectedDate.value.day == now.day &&
-          controller.selectedDate.value.month == now.month;
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Row(
-          children: [
-            Expanded(
-              child: ChoiceChip(
-                label: const Text('Сегодня', style: TextStyle(fontSize: 16)),
-                selected: isToday,
-                onSelected: (_) => controller.showToday(),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: ChoiceChip(
-                label: const Text('Завтра', style: TextStyle(fontSize: 16)),
-                selected: !isToday,
-                onSelected: (_) => controller.showTomorrow(),
-              ),
-            ),
-          ],
-        ),
-      );
-    });
   }
 }

@@ -5,10 +5,13 @@ from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.types import ErrorEvent
 
 from bot.api_client import api_client
 from bot.config import settings
 from bot.handlers import cart, catalog, start
+
+logger = logging.getLogger(__name__)
 
 
 async def main() -> None:
@@ -22,6 +25,28 @@ async def main() -> None:
     dp.include_router(start.router)
     dp.include_router(catalog.router)
     dp.include_router(cart.router)
+
+    @dp.errors()
+    async def on_error(event: ErrorEvent) -> bool:
+        # Without this, any unhandled exception in a handler just gets logged
+        # and the user sees nothing happen — looks exactly like "the bot is
+        # frozen". Always tell them something went wrong instead.
+        logger.exception("Unhandled error", exc_info=event.exception)
+        update = event.update
+        chat = None
+        if update.message:
+            chat = update.message.chat
+        elif update.callback_query and update.callback_query.message:
+            chat = update.callback_query.message.chat
+        if chat is not None:
+            try:
+                await bot.send_message(
+                    chat.id,
+                    "⚠️ Произошла ошибка. Попробуйте /start, чтобы начать заново.",
+                )
+            except Exception:
+                logger.exception("Could not notify user about the error")
+        return True
 
     try:
         await bot.delete_webhook(drop_pending_updates=True)

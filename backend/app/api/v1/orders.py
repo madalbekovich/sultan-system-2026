@@ -16,6 +16,7 @@ from app.schemas.order import (
     OrdersSummaryResponse,
     WeightUpdateRequest,
 )
+from app.services.notifications import notify_client_order_status
 from app.services.orders import to_order_read
 from app.services.pdf import render_waybill_pdf
 from app.services.summary import get_orders_summary, invalidate_summary_cache
@@ -134,6 +135,7 @@ async def update_order_status(
 
     order = await _get_order_or_404(db, order_id)
     await invalidate_summary_cache(order.delivery_date)
+    await notify_client_order_status(order)
     return to_order_read(order)
 
 

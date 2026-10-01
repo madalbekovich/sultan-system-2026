@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 import 'core/api_client.dart';
 import 'core/storage.dart';
@@ -18,6 +19,7 @@ import 'screens/worker/summary/production_summary_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('ru');
 
   final storage = await LocalStorage.getInstance();
   final apiClient = ApiClient(storage);
@@ -39,7 +41,7 @@ class SultanSystemApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      title: 'Sultan System',
+      title: 'Султан Цех',
       debugShowCheckedModeBanner: false,
       theme: buildAppTheme(),
       initialRoute: AppRoutes.modeSelect,

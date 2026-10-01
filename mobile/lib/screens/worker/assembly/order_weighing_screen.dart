@@ -63,14 +63,32 @@ class OrderWeighingScreen extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  BigButton(
-                    label: order.status == OrderStatus.ready
-                        ? 'Готов к отгрузке ✓'
-                        : 'Отметить как собранный / готовый',
-                    icon: Icons.check_circle,
-                    color: order.status == OrderStatus.ready ? Colors.green : null,
-                    onPressed: order.status == OrderStatus.ready ? null : controller.markReady,
-                  ),
+                  if (order.status == OrderStatus.dispatched)
+                    const BigButton(
+                      label: 'Отправлен ✓',
+                      icon: Icons.local_shipping,
+                      color: Colors.blue,
+                      onPressed: null,
+                    )
+                  else if (order.status == OrderStatus.ready) ...[
+                    const BigButton(
+                      label: 'Готов к отгрузке ✓',
+                      icon: Icons.check_circle,
+                      color: Colors.green,
+                      onPressed: null,
+                    ),
+                    const SizedBox(height: 12),
+                    BigButton(
+                      label: 'Отметить как отправленный',
+                      icon: Icons.local_shipping,
+                      onPressed: controller.markDispatched,
+                    ),
+                  ] else
+                    BigButton(
+                      label: 'Отметить как собранный / готовый',
+                      icon: Icons.check_circle,
+                      onPressed: controller.markReady,
+                    ),
                 ],
               ),
             ),

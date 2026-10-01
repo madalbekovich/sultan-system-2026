@@ -24,6 +24,12 @@ class OrderListController extends GetxController {
     reload();
   }
 
+  void showDate(DateTime date) {
+    selectedDate.value = date;
+    orders.assignAll(_repository.cachedOrders(_dateKey));
+    reload();
+  }
+
   Future<void> reload() async {
     try {
       final result = await _repository.fetchOrders(deliveryDate: _dateKey);

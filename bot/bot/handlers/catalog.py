@@ -10,6 +10,11 @@ from bot.states import OrderFlow
 
 router = Router(name="catalog")
 
+_SESSION_LOST_TEXT = (
+    "⚠️ Сессия сброшена (например, после перезапуска бота). "
+    "Отправьте /start, чтобы продолжить."
+)
+
 
 async def show_categories(message: Message, state: FSMContext) -> None:
     categories = await api_client.list_categories()
@@ -43,7 +48,12 @@ async def show_products(callback: CallbackQuery, state: FSMContext) -> None:
 async def choose_product(callback: CallbackQuery, state: FSMContext) -> None:
     product_id = int(callback.data.split(":", 1)[1])
     data = await state.get_data()
-    products = await api_client.list_products(category_id=data["category_id"])
+    category_id = data.get("category_id")
+    if category_id is None or "client_id" not in data:
+        await callback.answer()
+        await callback.message.answer(_SESSION_LOST_TEXT)
+        return
+    products = await api_client.list_products(category_id=category_id)
     product = next((p for p in products if p.id == product_id), None)
     if product is None:
         await callback.answer("Товар больше недоступен.", show_alert=True)
@@ -77,7 +87,10 @@ async def enter_quantity(message: Message, state: FSMContext) -> None:
         return
 
     data = await state.get_data()
-    product = data["pending_product"]
+    product = data.get("pending_product")
+    if product is None or "client_id" not in data:
+        await message.answer(_SESSION_LOST_TEXT)
+        return
     cart = data.get("cart", [])
     cart.append({**product, "qty": str(qty)})
     await state.update_data(cart=cart, pending_product=None)

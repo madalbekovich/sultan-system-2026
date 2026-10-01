@@ -6,6 +6,7 @@ import '../../../core/ru_text.dart';
 import '../../../data/orders_repository.dart';
 import '../../../models/order.dart';
 import '../../../widgets/status_views.dart';
+import '../../../widgets/week_day_picker.dart';
 import 'order_list_controller.dart';
 import 'order_weighing_screen.dart';
 
@@ -24,6 +25,10 @@ class OrderListScreen extends StatelessWidget {
       body: Column(
         children: [
           Obx(() => controller.isOffline.value ? const OfflineBanner() : const SizedBox.shrink()),
+          Obx(() => WeekDayPicker(
+                selected: controller.selectedDate.value,
+                onSelected: controller.showDate,
+              )),
           Expanded(
             child: Obx(() {
               if (controller.isLoading.value && controller.orders.isEmpty) {
