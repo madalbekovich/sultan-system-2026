@@ -25,7 +25,7 @@ class ManagerDashboardScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('РУКОВОДИТЕЛЬ'),
+        title: const Text('Руководитель'),
         actions: [
           IconButton(
             icon: const Icon(Icons.receipt_long_outlined),
@@ -84,13 +84,7 @@ class ManagerDashboardScreen extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 28),
-              Row(
-                children: [
-                  Container(width: 18, height: 4, color: BrandColors.red),
-                  const SizedBox(width: 6),
-                  Text('ВЕС ПО ТОВАРАМ', style: headingStyle()),
-                ],
-              ),
+              Text('Вес по товарам', style: headingStyle()),
               const SizedBox(height: 10),
               ...?controller.summary.value?.products.map(
                 (entry) => Padding(
@@ -157,8 +151,8 @@ class _StatCard extends StatelessWidget {
               const SizedBox(width: 6),
               Expanded(
                 child: Text(
-                  label.toUpperCase(),
-                  style: TextStyle(color: Colors.grey.shade600, fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 0.4),
+                  label,
+                  style: TextStyle(color: Colors.grey.shade600, fontSize: 12.5, fontWeight: FontWeight.w600),
                 ),
               ),
             ],

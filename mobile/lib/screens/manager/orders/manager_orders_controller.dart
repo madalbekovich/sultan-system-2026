@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
+import '../../../core/error_feedback.dart';
 import '../../../data/orders_repository.dart';
 import '../../../models/order.dart';
 
@@ -49,8 +50,8 @@ class ManagerOrdersController extends GetxController {
       final updated = await _repository.updateOrderStatus(order.id, status);
       final index = orders.indexWhere((o) => o.id == order.id);
       if (index != -1) orders[index] = updated;
-    } catch (_) {
-      // Transient — the list keeps the pre-update status, user can retry.
+    } catch (e) {
+      showErrorSnackbar(e, fallback: 'Не удалось изменить статус заказа.');
     } finally {
       updatingOrderIds.remove(order.id);
     }

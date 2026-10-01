@@ -20,19 +20,18 @@ class BigButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 64,
+      height: 58,
       child: ElevatedButton.icon(
         onPressed: onPressed,
-        icon: icon != null ? Icon(icon, size: 26) : const SizedBox.shrink(),
+        icon: icon != null ? Icon(icon, size: 22) : const SizedBox.shrink(),
         label: Text(
-          label.toUpperCase(),
-          style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800, letterSpacing: 0.6),
+          label,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: color,
           foregroundColor: color != null ? BrandColors.black : Colors.white,
-          side: const BorderSide(color: BrandColors.black, width: 2),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
       ),
     );

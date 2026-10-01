@@ -28,7 +28,7 @@ void main() {
     await tester.pumpWidget(const SultanSystemApp());
     await tester.pumpAndSettle();
 
-    expect(find.text('ЦЕХ'), findsOneWidget);
-    expect(find.text('РУКОВОДИТЕЛЬ'), findsOneWidget);
+    expect(find.text('Цех'), findsOneWidget);
+    expect(find.text('Руководитель'), findsOneWidget);
   });
 }

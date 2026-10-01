@@ -19,7 +19,7 @@ class OrderWeighingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('ВЗВЕШИВАНИЕ')),
+      appBar: AppBar(title: const Text('Взвешивание')),
       body: Obx(() {
         if (controller.isLoading.value && controller.order.value == null) {
           return const LoadingView();

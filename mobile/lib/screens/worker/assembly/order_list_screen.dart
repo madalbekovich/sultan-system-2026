@@ -23,7 +23,7 @@ class OrderListScreen extends StatelessWidget {
     )..reload();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('СБОРКА ЗАКАЗОВ')),
+      appBar: AppBar(title: const Text('Сборка заказов')),
       body: Column(
         children: [
           Obx(() => controller.isOffline.value ? const OfflineBanner() : const SizedBox.shrink()),

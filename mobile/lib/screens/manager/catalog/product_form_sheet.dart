@@ -82,26 +82,24 @@ Future<void> showProductFormSheet(
                     if (nameController.text.trim().isEmpty || price == null || categoryId == null) {
                       return;
                     }
-                    if (isEditing) {
-                      await controller.editProduct(existing, {
-                        'name': nameController.text.trim(),
-                        'category_id': categoryId,
-                        'price_per_unit': price,
-                        'unit_type': unitType == UnitType.pcs ? 'PCS' : 'KG',
-                      });
-                    } else {
-                      await controller.createProduct(
-                        Product(
-                          id: 0,
-                          categoryId: categoryId!,
-                          name: nameController.text.trim(),
-                          unitType: unitType,
-                          pricePerUnit: price,
-                          isActive: true,
-                        ),
-                      );
-                    }
-                    if (context.mounted) Navigator.of(context).pop();
+                    final success = isEditing
+                        ? await controller.editProduct(existing, {
+                            'name': nameController.text.trim(),
+                            'category_id': categoryId,
+                            'price_per_unit': price,
+                            'unit_type': unitType == UnitType.pcs ? 'PCS' : 'KG',
+                          })
+                        : await controller.createProduct(
+                            Product(
+                              id: 0,
+                              categoryId: categoryId!,
+                              name: nameController.text.trim(),
+                              unitType: unitType,
+                              pricePerUnit: price,
+                              isActive: true,
+                            ),
+                          );
+                    if (success && context.mounted) Navigator.of(context).pop();
                   },
                   child: const Text('Сохранить'),
                 ),

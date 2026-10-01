@@ -23,7 +23,7 @@ class ProductionSummaryScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('СКОЛЬКО НУЖНО'),
+        title: const Text('Сколько нужно'),
         actions: [
           IconButton(
             icon: const Icon(Icons.list_alt),

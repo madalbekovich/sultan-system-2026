@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-/// Order status rendered as an ink-stamp: rotated, dashed-looking double
-/// border, outline-only fill — reads like something a QC inspector stamped
-/// on a ticket, not a soft Material status chip.
+/// Order status badge: solid-fill pill with a readable label. Kept simple
+/// and flat — no rotation or decorative gimmicks, just a clear status
+/// indicator that's easy to scan in a list.
 class StampBadge extends StatelessWidget {
   const StampBadge({super.key, required this.label, required this.color});
 
@@ -11,22 +11,18 @@ class StampBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Transform.rotate(
-      angle: -0.06,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-        decoration: BoxDecoration(
-          border: Border.all(color: color, width: 2),
-          borderRadius: BorderRadius.circular(4),
-        ),
-        child: Text(
-          label.toUpperCase(),
-          style: TextStyle(
-            color: color,
-            fontWeight: FontWeight.w900,
-            fontSize: 12,
-            letterSpacing: 1.2,
-          ),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: color,
+          fontWeight: FontWeight.w700,
+          fontSize: 12.5,
         ),
       ),
     );

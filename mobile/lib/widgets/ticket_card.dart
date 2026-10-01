@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../core/theme.dart';
-
-/// A "factory ticket" card: solid black border + a hard offset shadow
-/// (no blur) instead of the soft Material drop-shadow every app uses —
-/// reads more like a printed tag/receipt than a generic admin card.
+/// Card used across the app: thin neutral border, a restrained shadow,
+/// and an optional colored accent bar on the left for status/category —
+/// a calm, professional look rather than a decorative one.
 class TicketCard extends StatelessWidget {
   const TicketCard({
     super.key,
@@ -22,27 +20,45 @@ class TicketCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final content = Container(
-      margin: const EdgeInsets.only(right: 4, bottom: 4),
+      clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        border: Border.all(color: BrandColors.black, width: 2),
-        borderRadius: BorderRadius.circular(4),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: const Color(0xFFE2DCCB), width: 1),
         boxShadow: [
           BoxShadow(
-            color: accentColor ?? BrandColors.black,
-            offset: const Offset(4, 4),
-            blurRadius: 0,
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
-        color: Colors.white,
       ),
-      child: Padding(padding: padding, child: child),
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (accentColor != null)
+              Container(
+                width: 4,
+                decoration: BoxDecoration(
+                  color: accentColor,
+                  borderRadius: const BorderRadius.horizontal(left: Radius.circular(10)),
+                ),
+              ),
+            Expanded(child: Padding(padding: padding, child: child)),
+          ],
+        ),
+      ),
     );
 
     if (onTap == null) return content;
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(4),
-      child: content,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(10),
+        child: content,
+      ),
     );
   }
 }

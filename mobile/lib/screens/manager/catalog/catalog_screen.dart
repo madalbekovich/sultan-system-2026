@@ -19,7 +19,7 @@ class CatalogScreen extends StatelessWidget {
     )..reload();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('КАТАЛОГ')),
+      appBar: AppBar(title: const Text('Каталог')),
       floatingActionButton: FloatingActionButton(
         onPressed: () => showProductFormSheet(context, controller),
         child: const Icon(Icons.add),

@@ -24,7 +24,7 @@ class ManagerOrdersScreen extends StatelessWidget {
     )..reload();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('ЗАКАЗЫ')),
+      appBar: AppBar(title: const Text('Заказы')),
       body: Column(
         children: [
           Obx(() => controller.isOffline.value ? const OfflineBanner() : const SizedBox.shrink()),

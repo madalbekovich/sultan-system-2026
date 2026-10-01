@@ -36,31 +36,27 @@ class WeekDayPicker extends StatelessWidget {
                   ? 'Завтра'
                   : intl.DateFormat.E('ru').format(day);
           return InkWell(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(8),
             onTap: () => onSelected(day),
             child: Container(
-              width: 64,
+              width: 62,
               padding: const EdgeInsets.symmetric(vertical: 8),
               decoration: BoxDecoration(
                 color: isSelected ? BrandColors.black : Colors.white,
-                borderRadius: BorderRadius.circular(6),
+                borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: BrandColors.black,
-                  width: isSelected ? 2 : 1.5,
+                  color: isSelected ? BrandColors.black : const Color(0xFFDAD4C2),
+                  width: 1,
                 ),
-                boxShadow: isSelected
-                    ? const [BoxShadow(color: BrandColors.yellow, offset: Offset(3, 3), blurRadius: 0)]
-                    : null,
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    label.toUpperCase(),
+                    label,
                     style: TextStyle(
                       fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.4,
+                      fontWeight: FontWeight.w600,
                       color: isSelected ? Colors.white70 : Colors.black54,
                     ),
                   ),
@@ -69,7 +65,7 @@ class WeekDayPicker extends StatelessWidget {
                     intl.DateFormat('d.MM').format(day),
                     style: numberStyle(
                       fontSize: 14,
-                      color: isSelected ? BrandColors.yellow : BrandColors.black,
+                      color: isSelected ? Colors.white : BrandColors.black,
                     ),
                   ),
                 ],

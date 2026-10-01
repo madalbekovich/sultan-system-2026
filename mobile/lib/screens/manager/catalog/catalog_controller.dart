@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 
+import '../../../core/error_feedback.dart';
 import '../../../data/products_repository.dart';
 import '../../../models/category.dart';
 import '../../../models/product.dart';
@@ -53,23 +54,42 @@ class CatalogController extends GetxController {
     return '—';
   }
 
-  Future<void> createProduct(Product product) async {
-    final created = await _repository.createProduct(product);
-    products.add(created);
+  /// Returns true on success, so the caller (e.g. the add/edit sheet) knows
+  /// whether it's safe to close — previously these threw uncaught, which
+  /// silently left the sheet open with no error shown.
+  Future<bool> createProduct(Product product) async {
+    try {
+      final created = await _repository.createProduct(product);
+      products.add(created);
+      return true;
+    } catch (e) {
+      showErrorSnackbar(e, fallback: 'Не удалось создать товар.');
+      return false;
+    }
   }
 
   Future<void> toggleActive(Product product) async {
-    final updated = await _repository.updateProduct(
-      product.id,
-      {'is_active': !product.isActive},
-    );
-    final index = products.indexWhere((p) => p.id == product.id);
-    if (index != -1) products[index] = updated;
+    try {
+      final updated = await _repository.updateProduct(
+        product.id,
+        {'is_active': !product.isActive},
+      );
+      final index = products.indexWhere((p) => p.id == product.id);
+      if (index != -1) products[index] = updated;
+    } catch (e) {
+      showErrorSnackbar(e, fallback: 'Не удалось изменить товар.');
+    }
   }
 
-  Future<void> editProduct(Product product, Map<String, dynamic> changes) async {
-    final updated = await _repository.updateProduct(product.id, changes);
-    final index = products.indexWhere((p) => p.id == product.id);
-    if (index != -1) products[index] = updated;
+  Future<bool> editProduct(Product product, Map<String, dynamic> changes) async {
+    try {
+      final updated = await _repository.updateProduct(product.id, changes);
+      final index = products.indexWhere((p) => p.id == product.id);
+      if (index != -1) products[index] = updated;
+      return true;
+    } catch (e) {
+      showErrorSnackbar(e, fallback: 'Не удалось сохранить товар.');
+      return false;
+    }
   }
 }

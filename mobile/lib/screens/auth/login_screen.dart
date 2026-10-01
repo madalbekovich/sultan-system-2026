@@ -29,7 +29,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final targetRoute = (Get.arguments as String?) ?? LoginController.workerHome;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('ВХОД ДЛЯ СОТРУДНИКОВ')),
+      appBar: AppBar(title: const Text('Вход для сотрудников')),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Center(

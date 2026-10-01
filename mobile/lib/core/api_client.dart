@@ -1,5 +1,8 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart' hide Response, FormData, MultipartFile;
 
+import '../routes/app_routes.dart';
 import 'config.dart';
 import 'storage.dart';
 
@@ -45,7 +48,29 @@ class ApiClient {
     final detail = data is Map && data['detail'] != null
         ? data['detail'].toString()
         : error.message ?? 'Ошибка сети';
-    return ApiException(error.response?.statusCode, detail);
+    final statusCode = error.response?.statusCode;
+    if (statusCode == 401) {
+      _handleSessionExpired();
+    }
+    return ApiException(statusCode, detail);
+  }
+
+  // A 401 used to fail every auth-required action (status changes, weight
+  // entry, catalog edits) with zero feedback — the screen just did nothing.
+  // Surface it and bounce back to login instead of failing silently. The
+  // token-null check also de-dupes bursts of parallel requests failing
+  // together (e.g. Future.wait) — only the first clears it.
+  void _handleSessionExpired() {
+    if (_storage.token == null) return;
+    _storage.clearToken();
+    Get.offAllNamed(AppRoutes.modeSelect);
+    Get.snackbar(
+      'Сессия истекла',
+      'Войдите снова, чтобы продолжить.',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.black87,
+      colorText: Colors.white,
+    );
   }
 
   Future<Response<T>> get<T>(String path, {Map<String, dynamic>? query}) async {

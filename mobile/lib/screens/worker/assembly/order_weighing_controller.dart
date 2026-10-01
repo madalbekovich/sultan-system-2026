@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 
+import '../../../core/error_feedback.dart';
 import '../../../data/orders_repository.dart';
 import '../../../models/order.dart';
 
@@ -46,8 +47,8 @@ class OrderWeighingController extends GetxController {
     savingItemIds.add(itemId);
     try {
       order.value = await _repository.updateItemWeight(itemId, actualQty);
-    } catch (_) {
-      errorMessage.value = 'Не удалось сохранить вес — повторим при появлении сети.';
+    } catch (e) {
+      showErrorSnackbar(e, fallback: 'Не удалось сохранить вес.');
     } finally {
       savingItemIds.remove(itemId);
     }
@@ -56,16 +57,16 @@ class OrderWeighingController extends GetxController {
   Future<void> markReady() async {
     try {
       order.value = await _repository.updateOrderStatus(orderId, OrderStatus.ready);
-    } catch (_) {
-      errorMessage.value = 'Не удалось обновить статус.';
+    } catch (e) {
+      showErrorSnackbar(e, fallback: 'Не удалось обновить статус.');
     }
   }
 
   Future<void> markDispatched() async {
     try {
       order.value = await _repository.updateOrderStatus(orderId, OrderStatus.dispatched);
-    } catch (_) {
-      errorMessage.value = 'Не удалось обновить статус.';
+    } catch (e) {
+      showErrorSnackbar(e, fallback: 'Не удалось обновить статус.');
     }
   }
 }
