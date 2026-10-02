@@ -10,12 +10,14 @@ from app.models.order import Order, OrderStatus
 from app.models.order_item import OrderItem
 from app.models.product import Product
 from app.schemas.order import (
+    DashboardAnalytics,
     OrderCreate,
     OrderRead,
     OrderStatusUpdateRequest,
     OrdersSummaryResponse,
     WeightUpdateRequest,
 )
+from app.services.analytics import get_dashboard_analytics
 from app.services.notifications import notify_client_order_status
 from app.services.orders import to_order_read
 from app.services.pdf import render_waybill_pdf
@@ -43,6 +45,13 @@ async def orders_summary(
 ) -> OrdersSummaryResponse:
     target_date = delivery_date or date.today()
     return await get_orders_summary(db, target_date)
+
+
+@router.get("/analytics/dashboard", response_model=DashboardAnalytics)
+async def dashboard_analytics(
+    days: int = 7, db: AsyncSession = Depends(get_db)
+) -> DashboardAnalytics:
+    return await get_dashboard_analytics(db, days=days)
 
 
 @router.get("/", response_model=list[OrderRead])

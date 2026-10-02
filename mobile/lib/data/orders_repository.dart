@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import '../core/api_client.dart';
 import '../core/storage.dart';
+import '../models/dashboard_analytics.dart';
 import '../models/order.dart';
 import '../models/orders_summary.dart';
 
@@ -53,6 +54,14 @@ class OrdersRepository {
       await _storage.setCache(_ordersCacheKey(deliveryDate), jsonEncode(response.data));
     }
     return orders;
+  }
+
+  Future<DashboardAnalytics> fetchDashboardAnalytics({int days = 7}) async {
+    final response = await _api.get<Map<String, dynamic>>(
+      '/orders/analytics/dashboard',
+      query: {'days': days},
+    );
+    return DashboardAnalytics.fromJson(response.data!);
   }
 
   Future<List<int>> fetchWaybillPdf(int orderId) {

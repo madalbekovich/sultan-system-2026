@@ -5,6 +5,9 @@ import '../../../core/get_utils.dart';
 import '../../../core/ru_text.dart';
 import '../../../core/theme.dart';
 import '../../../data/orders_repository.dart';
+import '../../../models/order.dart';
+import '../../../widgets/sales_bar_chart.dart';
+import '../../../widgets/stamp_badge.dart';
 import '../../../widgets/status_views.dart';
 import '../../../widgets/ticket_card.dart';
 import '../catalog/catalog_screen.dart';
@@ -33,62 +36,111 @@ class ManagerDashboardScreen extends StatelessWidget {
             onPressed: () => Get.to(() => const ManagerOrdersScreen()),
           ),
           IconButton(
-            icon: const Icon(Icons.inventory_2),
+            icon: const Icon(Icons.inventory_2_outlined),
             tooltip: 'Каталог',
             onPressed: () => Get.to(() => const CatalogScreen()),
           ),
           IconButton(
-            icon: const Icon(Icons.people),
+            icon: const Icon(Icons.people_outline),
             tooltip: 'Клиенты',
             onPressed: () => Get.to(() => const ClientsScreen()),
           ),
           IconButton(
-            icon: const Icon(Icons.receipt_long),
+            icon: const Icon(Icons.description_outlined),
             tooltip: 'Накладная',
             onPressed: () => Get.to(() => const WaybillScreen()),
           ),
         ],
       ),
       body: Obx(() {
-        if (controller.isLoading.value && controller.summary.value == null) {
+        if (controller.isLoading.value && controller.analytics.value == null) {
           return const LoadingView();
         }
+        final analytics = controller.analytics.value;
         return RefreshIndicator(
           onRefresh: controller.reload,
           child: ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              if (controller.isOffline.value) const OfflineBanner(),
-              const SizedBox(height: 12),
+              if (controller.isOffline.value) const Padding(
+                padding: EdgeInsets.only(bottom: 12),
+                child: OfflineBanner(),
+              ),
+
+              // KPI grid
               Row(
                 children: [
                   Expanded(
                     child: _StatCard(
-                      label: 'Продажи за сегодня',
+                      label: 'Продажи сегодня',
                       value: controller.totalSalesToday.toStringAsFixed(0),
-                      icon: Icons.payments_rounded,
-                      color: BrandColors.red,
+                      suffix: 'сом',
+                      icon: Icons.payments_outlined,
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: _StatCard(
+                      label: 'Заказов сегодня',
+                      value: controller.todaysOrders.length.toString(),
+                      icon: Icons.receipt_long_outlined,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(
+                    child: _StatCard(
+                      label: 'Средний чек',
+                      value: controller.averageOrderValue.toStringAsFixed(0),
+                      suffix: 'сом',
+                      icon: Icons.calculate_outlined,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: _StatCard(
                       label: 'Отгружено',
-                      value:
-                          '${controller.dispatchedCount}/${controller.todaysOrders.length}',
-                      icon: Icons.local_shipping_rounded,
-                      color: BrandColors.black,
+                      value: '${controller.dispatchedCount}/${controller.todaysOrders.length}',
+                      icon: Icons.local_shipping_outlined,
                       onTap: () => Get.to(() => const ManagerOrdersScreen()),
                     ),
                   ),
                 ],
               ),
+
               const SizedBox(height: 28),
-              Text('Вес по товарам', style: headingStyle()),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Продажи за неделю', style: headingStyle()),
+                  if (analytics != null)
+                    Text(
+                      '${analytics.dailySales.fold<double>(0, (s, d) => s + d.totalAmount).toStringAsFixed(0)} сом',
+                      style: numberStyle(fontSize: 14, color: Colors.black54),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              TicketCard(
+                child: analytics == null
+                    ? const SizedBox(height: 140)
+                    : SalesBarChart(data: analytics.dailySales),
+              ),
+
+              const SizedBox(height: 28),
+              Text('Топ товары за неделю', style: headingStyle()),
               const SizedBox(height: 10),
-              ...?controller.summary.value?.products.map(
+              if (analytics != null && analytics.topProducts.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Text('Пока нет заказов за этот период.', style: TextStyle(color: Colors.grey.shade600)),
+                ),
+              ...?analytics?.topProducts.map(
                 (entry) => Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.only(bottom: 8),
                   child: TicketCard(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                     child: Row(
@@ -97,7 +149,7 @@ class ManagerDashboardScreen extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(entry.productName, style: const TextStyle(fontWeight: FontWeight.w700)),
+                              Text(entry.productName, style: const TextStyle(fontWeight: FontWeight.w600)),
                               Text(
                                 clientsCountRu(entry.clientCount),
                                 style: TextStyle(color: Colors.grey.shade600, fontSize: 12.5),
@@ -107,8 +159,49 @@ class ManagerDashboardScreen extends StatelessWidget {
                         ),
                         Text(
                           '${entry.totalPlannedQty} ${unitLabelRu(entry.unitType)}',
-                          style: numberStyle(fontSize: 17),
+                          style: numberStyle(fontSize: 16),
                         ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 28),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Последние заказы', style: headingStyle()),
+                  TextButton(
+                    onPressed: () => Get.to(() => const ManagerOrdersScreen()),
+                    child: const Text('Все заказы'),
+                  ),
+                ],
+              ),
+              ...?analytics?.recentOrders.map(
+                (order) => Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: TicketCard(
+                    accentColor: orderStatusColor(order.status),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                order.clientName ?? 'Клиент №${order.clientId}',
+                                style: const TextStyle(fontWeight: FontWeight.w600),
+                              ),
+                              Text(
+                                '№${order.id} · ${order.totalAmount.toStringAsFixed(0)} сом',
+                                style: TextStyle(color: Colors.grey.shade600, fontSize: 12.5),
+                              ),
+                            ],
+                          ),
+                        ),
+                        StampBadge(label: order.status.label, color: orderStatusColor(order.status)),
                       ],
                     ),
                   ),
@@ -127,38 +220,50 @@ class _StatCard extends StatelessWidget {
     required this.label,
     required this.value,
     required this.icon,
-    required this.color,
+    this.suffix,
     this.onTap,
   });
 
   final String label;
   final String value;
   final IconData icon;
-  final Color color;
+  final String? suffix;
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     return TicketCard(
-      accentColor: color,
       onTap: onTap,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(icon, size: 16, color: color),
+              Icon(icon, size: 16, color: Colors.black45),
               const SizedBox(width: 6),
               Expanded(
                 child: Text(
                   label,
                   style: TextStyle(color: Colors.grey.shade600, fontSize: 12.5, fontWeight: FontWeight.w600),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 8),
-          Text(value, style: numberStyle(fontSize: 26, color: color)),
+          const SizedBox(height: 10),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              Text(value, style: numberStyle(fontSize: 22)),
+              if (suffix != null) ...[
+                const SizedBox(width: 4),
+                Text(suffix!, style: TextStyle(fontSize: 12, color: Colors.grey.shade500)),
+              ],
+            ],
+          ),
         ],
       ),
     );

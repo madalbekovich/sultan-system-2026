@@ -61,3 +61,15 @@ class ProductSummaryEntry(BaseModel):
 class OrdersSummaryResponse(BaseModel):
     delivery_date: date
     products: list[ProductSummaryEntry]
+
+
+class DailySalesEntry(BaseModel):
+    delivery_date: date
+    total_amount: Decimal
+    order_count: int
+
+
+class DashboardAnalytics(BaseModel):
+    daily_sales: list[DailySalesEntry]
+    top_products: list[ProductSummaryEntry]
+    recent_orders: list[OrderRead]
