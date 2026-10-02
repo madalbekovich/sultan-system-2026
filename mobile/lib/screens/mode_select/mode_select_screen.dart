@@ -7,12 +7,9 @@ import '../../data/auth_repository.dart';
 import '../../routes/app_routes.dart';
 import '../../widgets/brand_logo.dart';
 
-const _heroImagePath = 'assets/images/hero_meat.jpg';
-
-/// Entry screen: a full-bleed product photo with the two modes presented as
-/// hanging product-tag badges — echoing the oval "Султан" labels tied onto
-/// the sausages in the actual photo — instead of a generic settings-style
-/// list of rows.
+/// Entry screen: the two modes are presented as hanging product-tag badges
+/// — echoing the oval "Султан" labels tied onto real product — instead of
+/// a generic settings-style list of rows.
 class ModeSelectScreen extends StatelessWidget {
   const ModeSelectScreen({super.key});
 
@@ -25,35 +22,12 @@ class ModeSelectScreen extends StatelessWidget {
         body: Stack(
           fit: StackFit.expand,
           children: [
-            Image.asset(
-              _heroImagePath,
-              fit: BoxFit.cover,
-              alignment: const Alignment(0, -0.3),
-              errorBuilder: (context, error, stackTrace) => const DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [BrandColors.graphite, BrandColors.black],
-                  ),
-                ),
-              ),
-            ),
-            // Vignette: dark at top (for the wordmark) and bottom (for the
-            // tags), clear through the middle so the photo itself still reads.
             const DecoratedBox(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  stops: [0.0, 0.22, 0.55, 0.78, 1.0],
-                  colors: [
-                    Color(0xCC0D0A08),
-                    Color(0x330D0A08),
-                    Color(0x000D0A08),
-                    Color(0xAA0D0A08),
-                    Color(0xF20D0A08),
-                  ],
+                  colors: [BrandColors.graphite, BrandColors.black],
                 ),
               ),
             ),

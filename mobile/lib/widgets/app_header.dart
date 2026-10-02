@@ -4,6 +4,8 @@ import 'package:intl/intl.dart' as intl;
 import '../core/theme.dart';
 import 'brand_logo.dart';
 
+const _bannerImagePath = 'assets/images/hero_meat.jpg';
+
 String greetingForNow() {
   final hour = DateTime.now().hour;
   if (hour < 5) return 'Доброй ночи';
@@ -12,42 +14,77 @@ String greetingForNow() {
   return 'Добрый вечер';
 }
 
-/// Dark gradient header with the logo, a time-of-day greeting, and the
-/// date — used at the top of both modes' main screen so the app has one
-/// consistent "front door" instead of a bare AppBar.
+/// Header with the logo, a time-of-day greeting, and the date — used at the
+/// top of each mode's main screen. [showProductBanner] swaps the flat dark
+/// gradient for the product photo (with a scrim behind the text) — used on
+/// the manager dashboard only, so it reads as a deliberate banner there
+/// rather than being repeated everywhere.
 class AppHeader extends StatelessWidget {
-  const AppHeader({super.key, required this.subtitle, this.action});
+  const AppHeader({super.key, required this.subtitle, this.action, this.showProductBanner = false});
 
   /// Shown under the greeting, e.g. "Цех — сводка по весу".
   final String subtitle;
   final Widget? action;
+  final bool showProductBanner;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.fromLTRB(20, MediaQuery.of(context).padding.top + 16, 20, 22),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [BrandColors.graphite, BrandColors.black],
-        ),
-      ),
+      decoration: showProductBanner
+          ? null
+          : const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [BrandColors.graphite, BrandColors.black],
+              ),
+            ),
       child: Stack(
         clipBehavior: Clip.none,
         children: [
-          Positioned(
-            right: -30,
-            top: -30,
-            child: Container(
-              width: 140,
-              height: 140,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.white.withValues(alpha: 0.06), width: 24),
+          if (showProductBanner) ...[
+            Positioned.fill(
+              child: Image.asset(
+                _bannerImagePath,
+                fit: BoxFit.cover,
+                alignment: const Alignment(0.2, 0),
+                errorBuilder: (context, error, stackTrace) => const DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [BrandColors.graphite, BrandColors.black],
+                    ),
+                  ),
+                ),
               ),
             ),
-          ),
+            const Positioned.fill(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                    stops: [0.0, 0.62, 1.0],
+                    colors: [Color(0xF0100D0B), Color(0x99100D0B), Color(0x4D100D0B)],
+                  ),
+                ),
+              ),
+            ),
+          ] else
+            Positioned(
+              right: -30,
+              top: -30,
+              child: Container(
+                width: 140,
+                height: 140,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.06), width: 24),
+                ),
+              ),
+            ),
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
