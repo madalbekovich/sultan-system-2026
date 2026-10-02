@@ -33,6 +33,18 @@ class OrderItemIn:
 
 
 @dataclass
+class ClientProfile:
+    id: int
+    name: str
+    phone: str | None
+    address: str | None
+
+    @property
+    def is_complete(self) -> bool:
+        return bool(self.phone) and bool(self.address)
+
+
+@dataclass
 class OrderSummaryItem:
     id: int
     status: str
@@ -80,18 +92,34 @@ class ApiClient:
             for item in response.json()
         ]
 
-    async def register_client(self, tg_user_id: int, name: str) -> int:
-        response = await self._post(
-            "/clients/register", json={"tg_user_id": tg_user_id, "name": name}
-        )
+    async def register_client(
+        self,
+        tg_user_id: int,
+        name: str,
+        phone: str | None = None,
+        address: str | None = None,
+    ) -> int:
+        payload = {"tg_user_id": tg_user_id, "name": name}
+        if phone is not None:
+            payload["phone"] = phone
+        if address is not None:
+            payload["address"] = address
+        response = await self._post("/clients/register", json=payload)
         return response.json()["id"]
 
     async def get_client_id_by_tg(self, tg_user_id: int) -> int | None:
+        profile = await self.get_client_profile(tg_user_id)
+        return profile.id if profile else None
+
+    async def get_client_profile(self, tg_user_id: int) -> ClientProfile | None:
         response = await self._client.get(f"/clients/by-tg/{tg_user_id}")
         if response.status_code == 404:
             return None
         response.raise_for_status()
-        return response.json()["id"]
+        data = response.json()
+        return ClientProfile(
+            id=data["id"], name=data["name"], phone=data.get("phone"), address=data.get("address")
+        )
 
     async def list_orders_for_client(self, client_id: int) -> list[OrderSummaryItem]:
         response = await self._get("/orders/", params={"client_id": client_id})
