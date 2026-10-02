@@ -63,19 +63,19 @@ class ModeSelectScreen extends StatelessWidget {
                     Positioned(
                       left: 0,
                       right: 0,
-                      top: 14,
+                      top: 100,
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const BrandLogo(size: 40),
-                          const SizedBox(height: 6),
+                          const BrandLogo(size: 48),
+                          const SizedBox(height: 10),
                           Text(
                             'Султан Цех',
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                              shadows: [Shadow(color: Colors.black.withValues(alpha: 0.5), blurRadius: 6)],
+                              fontSize: 26,
+                              fontWeight: FontWeight.w800,
+                              shadows: [Shadow(color: Colors.black.withValues(alpha: 0.5), blurRadius: 8)],
                             ),
                           ),
                         ],
