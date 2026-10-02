@@ -31,38 +31,63 @@ class ModeSelectScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                AspectRatio(
-                  aspectRatio: _heroAspectRatio,
-                  child: Image.asset(
-                    _heroImagePath,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) =>
-                        Container(color: BrandColors.graphite),
-                  ),
+                Stack(
+                  children: [
+                    AspectRatio(
+                      aspectRatio: _heroAspectRatio,
+                      child: Image.asset(
+                        _heroImagePath,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) =>
+                            Container(color: BrandColors.graphite),
+                      ),
+                    ),
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      height: 56,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              BrandColors.cream.withValues(alpha: 0),
+                              BrandColors.cream,
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      top: 100,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const BrandLogo(size: 48),
+                          const SizedBox(height: 10),
+                          Text(
+                            'Султан Цех',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 26,
+                              fontWeight: FontWeight.w800,
+                              shadows: [Shadow(color: Colors.black.withValues(alpha: 0.5), blurRadius: 8)],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+                  padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            BrandLogo(size: 48),
-                            SizedBox(height: 10),
-                            Text(
-                              'Султан Цех',
-                              style: TextStyle(
-                                color: BrandColors.black,
-                                fontSize: 26,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 24),
                       Text('Выберите режим', style: headingStyle(fontSize: 13, color: Colors.black54)),
                       const SizedBox(height: 12),
                       _ModeRow(
