@@ -41,6 +41,17 @@ TextStyle headingStyle({double fontSize = 15, Color color = BrandColors.black}) 
   );
 }
 
+/// Product icon/color by name, since not every list that shows a product
+/// (e.g. the worker's weight summary) also carries its category — vacuum
+/// items are reliably named "...(вакуум)" in this catalog.
+(IconData, Color) productVisual(String productName) {
+  final name = productName.toLowerCase();
+  if (name.contains('вакуум')) {
+    return (Icons.inventory_2_outlined, const Color(0xFF3E6E8E));
+  }
+  return (Icons.kebab_dining_outlined, BrandColors.redDark);
+}
+
 Color orderStatusColor(OrderStatus status) {
   switch (status) {
     case OrderStatus.pending:

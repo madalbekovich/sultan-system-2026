@@ -5,7 +5,6 @@ import '../../../core/get_utils.dart';
 import '../../../core/ru_text.dart';
 import '../../../core/theme.dart';
 import '../../../data/orders_repository.dart';
-import '../../../routes/app_routes.dart';
 import '../../../widgets/status_views.dart';
 import '../../../widgets/ticket_card.dart';
 import '../../../widgets/week_day_picker.dart';
@@ -22,16 +21,7 @@ class ProductionSummaryScreen extends StatelessWidget {
     )..reload(silent: true);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Сколько нужно'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.list_alt),
-            tooltip: 'Сборка заказов',
-            onPressed: () => Get.toNamed(AppRoutes.workerAssembly),
-          ),
-        ],
-      ),
+      appBar: AppBar(title: const Text('Сколько нужно')),
       body: Column(
         children: [
           Obx(() => controller.isOffline.value ? const OfflineBanner() : const SizedBox.shrink()),
@@ -62,6 +52,7 @@ class ProductionSummaryScreen extends StatelessWidget {
                   separatorBuilder: (_, __) => const SizedBox(height: 10),
                   itemBuilder: (context, index) {
                     final entry = summary.products[index];
+                    final (icon, color) = productVisual(entry.productName);
                     return TicketCard(
                       child: Row(
                         children: [
@@ -69,11 +60,10 @@ class ProductionSummaryScreen extends StatelessWidget {
                             width: 40,
                             height: 40,
                             decoration: BoxDecoration(
-                              color: BrandColors.yellow,
-                              border: Border.all(color: BrandColors.black, width: 1.5),
+                              color: color.withValues(alpha: 0.12),
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(Icons.scale, color: BrandColors.black, size: 20),
+                            child: Icon(icon, color: color, size: 20),
                           ),
                           const SizedBox(width: 14),
                           Expanded(

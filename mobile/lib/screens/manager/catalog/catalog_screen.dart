@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../core/get_utils.dart';
+import '../../../core/theme.dart';
 import '../../../data/products_repository.dart';
 import '../../../models/product.dart';
 import '../../../widgets/status_views.dart';
@@ -65,11 +66,24 @@ class CatalogScreen extends StatelessWidget {
                   separatorBuilder: (_, __) => const Divider(height: 1),
                   itemBuilder: (context, index) {
                     final product = items[index];
+                    final categoryName = controller.categoryName(product.categoryId);
+                    final (icon, color) = productVisual(categoryName);
                     return ListTile(
-                      title: Text(product.name),
-                      subtitle: Text(
-                        '${controller.categoryName(product.categoryId)} · ${product.pricePerUnit}/${product.unitType.label}',
+                      leading: Container(
+                        width: 42,
+                        height: 42,
+                        decoration: BoxDecoration(
+                          color: color.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Icon(icon, color: color, size: 22),
                       ),
+                      title: Text(
+                        product.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      subtitle: Text('$categoryName · ${product.pricePerUnit}/${product.unitType.label}'),
                       onTap: () => showProductFormSheet(context, controller, existing: product),
                       trailing: Switch(
                         value: product.isActive,
