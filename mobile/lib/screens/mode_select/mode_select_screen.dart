@@ -7,9 +7,16 @@ import '../../data/auth_repository.dart';
 import '../../routes/app_routes.dart';
 import '../../widgets/brand_logo.dart';
 
-/// Entry screen: the two modes are presented as hanging product-tag badges
-/// — echoing the oval "Султан" labels tied onto real product — instead of
-/// a generic settings-style list of rows.
+const _heroImagePath = 'assets/images/hero_meat.jpg';
+// The photo's real pixel dimensions — an AspectRatio box this exact shape
+// means BoxFit.cover shows the whole image with zero cropping, no overlay
+// needed on top of it either.
+const _heroAspectRatio = 1251 / 832;
+
+/// Entry screen: the real product photo shown in full (no crop, no scrim
+/// over it), with the two modes presented below it as hanging product-tag
+/// badges — echoing the oval "Султан" labels tied onto the sausages in the
+/// photo — instead of a generic settings-style list of rows.
 class ModeSelectScreen extends StatelessWidget {
   const ModeSelectScreen({super.key});
 
@@ -19,68 +26,60 @@ class ModeSelectScreen extends StatelessWidget {
       value: SystemUiOverlayStyle.light,
       child: Scaffold(
         backgroundColor: BrandColors.graphite,
-        body: Stack(
-          fit: StackFit.expand,
-          children: [
-            const DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [BrandColors.graphite, BrandColors.black],
+        body: SafeArea(
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(20, 12, 20, 16),
+                  child: Row(
+                    children: [
+                      BrandLogo(size: 40),
+                      SizedBox(width: 10),
+                      Text(
+                        'Султан Цех',
+                        style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ),
-            SafeArea(
-              child: Column(
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.fromLTRB(20, 12, 20, 0),
-                    child: Row(
-                      children: [
-                        BrandLogo(size: 40),
-                        SizedBox(width: 10),
-                        Text(
-                          'Султан Цех',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
-                            shadows: [Shadow(color: Colors.black54, blurRadius: 8)],
-                          ),
-                        ),
-                      ],
-                    ),
+                AspectRatio(
+                  aspectRatio: _heroAspectRatio,
+                  child: Image.asset(
+                    _heroImagePath,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Container(color: BrandColors.black),
                   ),
-                  const Spacer(),
-                  SizedBox(
-                    height: 190,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _HangingTag(
-                          title: 'Цех',
-                          subtitle: 'Взвешивание\nи сборка',
-                          icon: Icons.scale_outlined,
-                          dropHeight: 18,
-                          onTap: () => _enter(AppRoutes.workerSummary),
-                        ),
-                        _HangingTag(
-                          title: 'Руководитель',
-                          subtitle: 'Продажи\nи заказы',
-                          icon: Icons.insights_outlined,
-                          dropHeight: 44,
-                          onTap: () => _enter(AppRoutes.managerDashboard),
-                        ),
-                      ],
-                    ),
+                ),
+                const SizedBox(height: 32),
+                SizedBox(
+                  height: 190,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _HangingTag(
+                        title: 'Цех',
+                        subtitle: 'Взвешивание\nи сборка',
+                        icon: Icons.scale_outlined,
+                        dropHeight: 18,
+                        onTap: () => _enter(AppRoutes.workerSummary),
+                      ),
+                      _HangingTag(
+                        title: 'Руководитель',
+                        subtitle: 'Продажи\nи заказы',
+                        icon: Icons.insights_outlined,
+                        dropHeight: 44,
+                        onTap: () => _enter(AppRoutes.managerDashboard),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 28),
-                ],
-              ),
+                ),
+                const SizedBox(height: 28),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

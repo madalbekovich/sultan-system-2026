@@ -40,7 +40,6 @@ class ManagerDashboardScreen extends StatelessWidget {
             children: [
               AppHeader(
                 subtitle: formattedToday(),
-                showProductBanner: true,
                 action: IconButton(
                   onPressed: () => Get.to(() => const WaybillScreen()),
                   icon: const Icon(Icons.description_outlined, color: Colors.white),
