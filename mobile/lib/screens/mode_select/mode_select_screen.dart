@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -9,11 +7,12 @@ import '../../data/auth_repository.dart';
 import '../../routes/app_routes.dart';
 import '../../widgets/brand_logo.dart';
 
-/// Hero photo behind the mode picker — see assets/images/README.md for the
-/// brief. Falls back to a plain gradient until the file is actually added
-/// (and declared in pubspec.yaml), so a missing asset never breaks the screen.
 const _heroImagePath = 'assets/images/hero_meat.jpg';
 
+/// Entry screen: a full-bleed product photo with the two modes presented as
+/// hanging product-tag badges — echoing the oval "Султан" labels tied onto
+/// the sausages in the actual photo — instead of a generic settings-style
+/// list of rows.
 class ModeSelectScreen extends StatelessWidget {
   const ModeSelectScreen({super.key});
 
@@ -26,10 +25,10 @@ class ModeSelectScreen extends StatelessWidget {
         body: Stack(
           fit: StackFit.expand,
           children: [
-            // Background photo (or gradient fallback).
             Image.asset(
               _heroImagePath,
               fit: BoxFit.cover,
+              alignment: const Alignment(0, -0.3),
               errorBuilder: (context, error, stackTrace) => const DecoratedBox(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -40,17 +39,20 @@ class ModeSelectScreen extends StatelessWidget {
                 ),
               ),
             ),
-            // Gradient scrim so the logo and buttons stay legible over any photo.
+            // Vignette: dark at top (for the wordmark) and bottom (for the
+            // tags), clear through the middle so the photo itself still reads.
             const DecoratedBox(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  stops: [0.0, 0.45, 1.0],
+                  stops: [0.0, 0.22, 0.55, 0.78, 1.0],
                   colors: [
-                    Color(0xCC14100E),
-                    Color(0x9914100E),
-                    Color(0xF014100E),
+                    Color(0xCC0D0A08),
+                    Color(0x330D0A08),
+                    Color(0x000D0A08),
+                    Color(0xAA0D0A08),
+                    Color(0xF20D0A08),
                   ],
                 ),
               ),
@@ -58,39 +60,49 @@ class ModeSelectScreen extends StatelessWidget {
             SafeArea(
               child: Column(
                 children: [
-                  const Spacer(flex: 3),
-                  const BrandLogo(size: 84),
-                  const SizedBox(height: 18),
-                  const Text(
-                    'Султан Цех',
-                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.w700, color: Colors.white),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Производственный учёт',
-                    style: TextStyle(fontSize: 13, color: Colors.white.withValues(alpha: 0.6)),
-                  ),
-                  const Spacer(flex: 4),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
-                    child: Column(
+                  const Padding(
+                    padding: EdgeInsets.fromLTRB(20, 12, 20, 0),
+                    child: Row(
                       children: [
-                        _ModeOption(
+                        BrandLogo(size: 40),
+                        SizedBox(width: 10),
+                        Text(
+                          'Султан Цех',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            shadows: [Shadow(color: Colors.black54, blurRadius: 8)],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Spacer(),
+                  SizedBox(
+                    height: 190,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _HangingTag(
                           title: 'Цех',
-                          subtitle: 'Взвешивание и сборка заказов',
+                          subtitle: 'Взвешивание\nи сборка',
                           icon: Icons.scale_outlined,
+                          dropHeight: 18,
                           onTap: () => _enter(AppRoutes.workerSummary),
                         ),
-                        const SizedBox(height: 12),
-                        _ModeOption(
+                        _HangingTag(
                           title: 'Руководитель',
-                          subtitle: 'Продажи, заказы, каталог, клиенты',
+                          subtitle: 'Продажи\nи заказы',
                           icon: Icons.insights_outlined,
+                          dropHeight: 44,
                           onTap: () => _enter(AppRoutes.managerDashboard),
                         ),
                       ],
                     ),
                   ),
+                  const SizedBox(height: 28),
                 ],
               ),
             ),
@@ -110,69 +122,63 @@ class ModeSelectScreen extends StatelessWidget {
   }
 }
 
-/// Frosted-glass option card sitting on top of the hero photo.
-class _ModeOption extends StatelessWidget {
-  const _ModeOption({
+/// A product-tag badge "hanging" from a short string — [dropHeight] varies
+/// per tag so the pair reads as two real tags at slightly different
+/// lengths, not a mechanically mirrored pair.
+class _HangingTag extends StatelessWidget {
+  const _HangingTag({
     required this.title,
     required this.subtitle,
     required this.icon,
+    required this.dropHeight,
     required this.onTap,
   });
 
   final String title;
   final String subtitle;
   final IconData icon;
+  final double dropHeight;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(14),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-        child: Material(
-          color: Colors.white.withValues(alpha: 0.14),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(width: 1.5, height: dropHeight, color: Colors.white.withValues(alpha: 0.55)),
+        Material(
+          color: BrandColors.cream,
+          shape: const StadiumBorder(side: BorderSide(color: BrandColors.red, width: 2)),
+          elevation: 6,
+          shadowColor: Colors.black54,
           child: InkWell(
+            customBorder: const StadiumBorder(),
             onTap: onTap,
             child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.18)),
-              ),
-              padding: const EdgeInsets.all(16),
-              child: Row(
+              width: 136,
+              padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 14),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: BrandColors.yellow,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Icon(icon, color: BrandColors.black, size: 22),
+                  Icon(icon, color: BrandColors.redDark, size: 26),
+                  const SizedBox(height: 6),
+                  Text(
+                    title,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: BrandColors.black),
                   ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(title,
-                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
-                        const SizedBox(height: 2),
-                        Text(
-                          subtitle,
-                          style: TextStyle(fontSize: 12.5, color: Colors.white.withValues(alpha: 0.7)),
-                        ),
-                      ],
-                    ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 10.5, color: Colors.black.withValues(alpha: 0.6), height: 1.2),
                   ),
-                  Icon(Icons.chevron_right, color: Colors.white.withValues(alpha: 0.6)),
                 ],
               ),
             ),
           ),
         ),
-      ),
+      ],
     );
   }
 }
