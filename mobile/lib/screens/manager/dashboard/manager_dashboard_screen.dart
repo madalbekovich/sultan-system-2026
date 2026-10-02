@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart' as intl;
 
 import '../../../core/get_utils.dart';
 import '../../../core/ru_text.dart';
 import '../../../core/theme.dart';
 import '../../../data/orders_repository.dart';
 import '../../../models/order.dart';
-import '../../../widgets/brand_logo.dart';
+import '../../../widgets/app_header.dart';
+import '../../../widgets/client_avatar.dart';
 import '../../../widgets/sales_bar_chart.dart';
 import '../../../widgets/stamp_badge.dart';
 import '../../../widgets/status_views.dart';
@@ -15,14 +15,6 @@ import '../../../widgets/ticket_card.dart';
 import '../orders/manager_orders_screen.dart';
 import '../waybill/waybill_screen.dart';
 import 'manager_dashboard_controller.dart';
-
-String _greeting() {
-  final hour = DateTime.now().hour;
-  if (hour < 5) return 'Доброй ночи';
-  if (hour < 12) return 'Доброе утро';
-  if (hour < 18) return 'Добрый день';
-  return 'Добрый вечер';
-}
 
 class ManagerDashboardScreen extends StatelessWidget {
   const ManagerDashboardScreen({super.key});
@@ -46,7 +38,14 @@ class ManagerDashboardScreen extends StatelessWidget {
           child: ListView(
             padding: EdgeInsets.zero,
             children: [
-              _Header(onWaybillTap: () => Get.to(() => const WaybillScreen())),
+              AppHeader(
+                subtitle: formattedToday(),
+                action: IconButton(
+                  onPressed: () => Get.to(() => const WaybillScreen()),
+                  icon: const Icon(Icons.description_outlined, color: Colors.white),
+                  tooltip: 'Накладная',
+                ),
+              ),
               Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
@@ -185,9 +184,11 @@ class ManagerDashboardScreen extends StatelessWidget {
                         padding: const EdgeInsets.only(bottom: 8),
                         child: TicketCard(
                           accentColor: orderStatusColor(order.status),
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                           child: Row(
                             children: [
+                              ClientAvatar(name: order.clientName ?? 'Клиент №${order.clientId}', size: 36),
+                              const SizedBox(width: 12),
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -216,70 +217,6 @@ class ManagerDashboardScreen extends StatelessWidget {
           ),
         );
       }),
-    );
-  }
-}
-
-class _Header extends StatelessWidget {
-  const _Header({required this.onWaybillTap});
-
-  final VoidCallback onWaybillTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.fromLTRB(20, MediaQuery.of(context).padding.top + 16, 20, 22),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [BrandColors.graphite, BrandColors.black],
-        ),
-      ),
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Positioned(
-            right: -30,
-            top: -30,
-            child: Container(
-              width: 140,
-              height: 140,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.white.withValues(alpha: 0.06), width: 24),
-              ),
-            ),
-          ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const BrandLogo(size: 46),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      _greeting(),
-                      style: const TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.w700),
-                    ),
-                    Text(
-                      intl.DateFormat('EEEE, d MMMM', 'ru').format(DateTime.now()),
-                      style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 13),
-                    ),
-                  ],
-                ),
-              ),
-              IconButton(
-                onPressed: onWaybillTap,
-                icon: const Icon(Icons.description_outlined, color: Colors.white),
-                tooltip: 'Накладная',
-              ),
-            ],
-          ),
-        ],
-      ),
     );
   }
 }

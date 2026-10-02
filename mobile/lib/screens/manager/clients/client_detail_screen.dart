@@ -5,7 +5,10 @@ import '../../../core/theme.dart';
 import '../../../data/orders_repository.dart';
 import '../../../models/client.dart';
 import '../../../models/order.dart';
+import '../../../widgets/client_avatar.dart';
+import '../../../widgets/stamp_badge.dart';
 import '../../../widgets/status_views.dart';
+import '../../../widgets/ticket_card.dart';
 import 'client_detail_controller.dart';
 
 class ClientDetailScreen extends StatelessWidget {
@@ -20,6 +23,7 @@ class ClientDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: BrandColors.cream,
       appBar: AppBar(title: Text(client.name)),
       body: Obx(() {
         if (controller.isLoading.value) return const LoadingView();
@@ -31,44 +35,73 @@ class ClientDetailScreen extends StatelessWidget {
           child: ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                ),
+              TicketCard(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (client.phone != null)
-                      _InfoRow(icon: Icons.phone, text: client.phone!),
-                    if (client.address != null)
-                      _InfoRow(icon: Icons.location_on_outlined, text: client.address!),
-                    _InfoRow(
-                      icon: Icons.payments_outlined,
-                      text: 'Всего заказано: ${controller.totalSpent.toStringAsFixed(0)} сом',
+                    Row(
+                      children: [
+                        ClientAvatar(name: client.name, size: 52),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(client.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+                              Text(
+                                'Всего заказано: ${controller.totalSpent.toStringAsFixed(0)} сом',
+                                style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
+                    if (client.phone != null || client.address != null) ...[
+                      const Divider(height: 24),
+                      if (client.phone != null) _InfoRow(icon: Icons.phone_outlined, text: client.phone!),
+                      if (client.address != null)
+                        _InfoRow(icon: Icons.location_on_outlined, text: client.address!),
+                    ],
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
-              const Text('История заказов', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
+              const SizedBox(height: 24),
+              Text('История заказов', style: headingStyle()),
+              const SizedBox(height: 10),
               if (controller.orders.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 24),
-                  child: Center(child: Text('Заказов пока не было.')),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 24),
+                  child: Center(
+                    child: Text('Заказов пока не было.', style: TextStyle(color: Colors.grey.shade600)),
+                  ),
                 )
               else
                 ...controller.orders.map(
-                  (order) => Card(
-                    margin: const EdgeInsets.only(bottom: 8),
-                    child: ListTile(
-                      title: Text('№${order.id} · ${order.deliveryDate.toLocal().toString().split(' ').first}'),
-                      subtitle: Text('${order.items.length} поз. · ${order.status.label}'),
-                      trailing: Text(
-                        '${order.totalAmount.toStringAsFixed(0)} сом',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                  (order) => Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: TicketCard(
+                      accentColor: orderStatusColor(order.status),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '№${order.id} · ${order.deliveryDate.toLocal().toString().split(' ').first}',
+                                  style: const TextStyle(fontWeight: FontWeight.w600),
+                                ),
+                                Text(
+                                  '${order.items.length} поз. · ${order.totalAmount.toStringAsFixed(0)} сом',
+                                  style: TextStyle(color: Colors.grey.shade600, fontSize: 12.5),
+                                ),
+                              ],
+                            ),
+                          ),
+                          StampBadge(label: order.status.label, color: orderStatusColor(order.status)),
+                        ],
                       ),
                     ),
                   ),

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../core/theme.dart';
 import '../../../data/orders_repository.dart';
 import '../../../models/order.dart';
 import '../../../widgets/big_button.dart';
+import '../../../widgets/client_avatar.dart';
 import '../../../widgets/status_views.dart';
 import 'order_weighing_controller.dart';
 
@@ -19,6 +21,7 @@ class OrderWeighingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: BrandColors.cream,
       appBar: AppBar(title: const Text('Взвешивание')),
       body: Obx(() {
         if (controller.isLoading.value && controller.order.value == null) {
@@ -28,13 +31,22 @@ class OrderWeighingScreen extends StatelessWidget {
         if (order == null) {
           return ErrorView(message: controller.errorMessage.value ?? 'Заказ не найден.');
         }
+        final clientName = order.clientName ?? 'Клиент №${order.clientId}';
         return Column(
           children: [
             Padding(
               padding: const EdgeInsets.all(16),
-              child: Text(
-                order.clientName ?? 'Клиент №${order.clientId}',
-                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              child: Row(
+                children: [
+                  ClientAvatar(name: clientName, size: 40),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      clientName,
+                      style: const TextStyle(fontSize: 21, fontWeight: FontWeight.w800),
+                    ),
+                  ),
+                ],
               ),
             ),
             Expanded(
@@ -125,13 +137,29 @@ class _WeighingRowState extends State<_WeighingRow> {
   @override
   Widget build(BuildContext context) {
     final item = widget.item;
+    final productName = item.productName ?? 'Товар №${item.productId}';
+    final (icon, color) = productVisual(productName);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          item.productName ?? 'Товар №${item.productId}',
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+        Row(
+          children: [
+            Container(
+              width: 34,
+              height: 34,
+              decoration: BoxDecoration(color: color.withValues(alpha: 0.12), shape: BoxShape.circle),
+              child: Icon(icon, color: color, size: 18),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                productName,
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+              ),
+            ),
+          ],
         ),
+        const SizedBox(height: 4),
         Text('План: ${item.plannedQty}', style: TextStyle(color: Colors.grey.shade600)),
         const SizedBox(height: 8),
         Row(

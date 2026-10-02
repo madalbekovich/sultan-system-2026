@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../../core/get_utils.dart';
 import '../../../data/clients_repository.dart';
+import '../../../widgets/client_avatar.dart';
 import '../../../widgets/status_views.dart';
 import 'client_detail_screen.dart';
 import 'clients_controller.dart';
@@ -37,7 +38,7 @@ class ClientsScreen extends StatelessWidget {
               return ListTile(
                 title: Text(client.name),
                 subtitle: Text([client.phone, client.address].whereType<String>().join(' · ')),
-                leading: CircleAvatar(child: Text(client.name.isNotEmpty ? client.name[0] : '?')),
+                leading: ClientAvatar(name: client.name),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => Get.to(() => ClientDetailScreen(client: client)),
               );

@@ -7,6 +7,7 @@ import '../../../core/theme.dart';
 import '../../../core/waybill_actions.dart';
 import '../../../data/orders_repository.dart';
 import '../../../models/order.dart';
+import '../../../widgets/client_avatar.dart';
 import '../../../widgets/stamp_badge.dart';
 import '../../../widgets/status_views.dart';
 import '../../../widgets/ticket_card.dart';
@@ -81,6 +82,7 @@ class _OrderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final statusColor = orderStatusColor(order.status);
+    final clientName = order.clientName ?? 'Клиент №${order.clientId}';
     return TicketCard(
       accentColor: statusColor,
       child: Column(
@@ -88,16 +90,18 @@ class _OrderCard extends StatelessWidget {
         children: [
           Row(
             children: [
+              ClientAvatar(name: clientName, size: 36),
+              const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  order.clientName ?? 'Клиент №${order.clientId}',
+                  clientName,
                   style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
                 ),
               ),
               Text('№${order.id}', style: numberStyle(fontSize: 14, color: Colors.black54)),
             ],
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 8),
           Row(
             children: [
               Text(

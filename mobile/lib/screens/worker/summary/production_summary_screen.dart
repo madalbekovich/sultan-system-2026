@@ -5,6 +5,7 @@ import '../../../core/get_utils.dart';
 import '../../../core/ru_text.dart';
 import '../../../core/theme.dart';
 import '../../../data/orders_repository.dart';
+import '../../../widgets/app_header.dart';
 import '../../../widgets/status_views.dart';
 import '../../../widgets/ticket_card.dart';
 import '../../../widgets/week_day_picker.dart';
@@ -21,9 +22,10 @@ class ProductionSummaryScreen extends StatelessWidget {
     )..reload(silent: true);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Сколько нужно')),
+      backgroundColor: BrandColors.cream,
       body: Column(
         children: [
+          const AppHeader(subtitle: 'Сколько нужно взвесить сегодня'),
           Obx(() => controller.isOffline.value ? const OfflineBanner() : const SizedBox.shrink()),
           Obx(() => WeekDayPicker(
                 selected: controller.selectedDate.value,

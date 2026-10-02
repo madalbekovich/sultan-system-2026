@@ -6,6 +6,7 @@ import '../../../core/ru_text.dart';
 import '../../../core/theme.dart';
 import '../../../data/orders_repository.dart';
 import '../../../models/order.dart';
+import '../../../widgets/client_avatar.dart';
 import '../../../widgets/stamp_badge.dart';
 import '../../../widgets/status_views.dart';
 import '../../../widgets/week_day_picker.dart';
@@ -49,9 +50,11 @@ class OrderListScreen extends StatelessWidget {
                   separatorBuilder: (_, __) => const Divider(height: 1),
                   itemBuilder: (context, index) {
                     final order = controller.orders[index];
+                    final clientName = order.clientName ?? 'Клиент №${order.clientId}';
                     return ListTile(
                       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                      title: Text(order.clientName ?? 'Клиент №${order.clientId}',
+                      leading: ClientAvatar(name: clientName),
+                      title: Text(clientName,
                           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
                       subtitle: Text(itemsCountRu(order.items.length)),
                       trailing: StampBadge(
