@@ -9,74 +9,103 @@ import '../../widgets/brand_logo.dart';
 
 const _heroImagePath = 'assets/images/hero_meat.jpg';
 // The photo's real pixel dimensions — an AspectRatio box this exact shape
-// means BoxFit.cover shows the whole image with zero cropping, no overlay
-// needed on top of it either.
+// means BoxFit.cover shows the whole image with zero cropping.
 const _heroAspectRatio = 1251 / 832;
 
-/// Entry screen: the real product photo shown in full (no crop, no scrim
-/// over it), with the two modes presented below it as hanging product-tag
-/// badges — echoing the oval "Султан" labels tied onto the sausages in the
-/// photo — instead of a generic settings-style list of rows.
+/// Entry screen: same light, calm look as the rest of the app (cream
+/// background, bordered cards) instead of a one-off dark showpiece — the
+/// product photo sits as a banner up top and fades into the page, and the
+/// two modes are plain, legible rows, not decorative badges.
 class ModeSelectScreen extends StatelessWidget {
   const ModeSelectScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.light,
+      value: SystemUiOverlayStyle.dark,
       child: Scaffold(
-        backgroundColor: BrandColors.graphite,
+        backgroundColor: BrandColors.cream,
         body: SafeArea(
+          bottom: false,
           child: SingleChildScrollView(
             child: Column(
-              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(20, 12, 20, 16),
-                  child: Row(
-                    children: [
-                      BrandLogo(size: 40),
-                      SizedBox(width: 10),
-                      Text(
-                        'Султан Цех',
-                        style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700),
+                Stack(
+                  children: [
+                    AspectRatio(
+                      aspectRatio: _heroAspectRatio,
+                      child: Image.asset(
+                        _heroImagePath,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) =>
+                            Container(color: BrandColors.graphite),
                       ),
-                    ],
-                  ),
+                    ),
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      height: 56,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              BrandColors.cream.withValues(alpha: 0),
+                              BrandColors.cream,
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      left: 16,
+                      top: 14,
+                      child: Row(
+                        children: [
+                          const BrandLogo(size: 34),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Султан Цех',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                              shadows: [Shadow(color: Colors.black.withValues(alpha: 0.5), blurRadius: 6)],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-                AspectRatio(
-                  aspectRatio: _heroAspectRatio,
-                  child: Image.asset(
-                    _heroImagePath,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => Container(color: BrandColors.black),
-                  ),
-                ),
-                const SizedBox(height: 32),
-                SizedBox(
-                  height: 190,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _HangingTag(
+                      Text('Выберите режим', style: headingStyle(fontSize: 13, color: Colors.black54)),
+                      const SizedBox(height: 12),
+                      _ModeRow(
                         title: 'Цех',
-                        subtitle: 'Взвешивание\nи сборка',
+                        subtitle: 'Взвешивание и сборка заказов',
                         icon: Icons.scale_outlined,
-                        dropHeight: 18,
+                        color: BrandColors.redDark,
                         onTap: () => _enter(AppRoutes.workerSummary),
                       ),
-                      _HangingTag(
+                      const SizedBox(height: 10),
+                      _ModeRow(
                         title: 'Руководитель',
-                        subtitle: 'Продажи\nи заказы',
+                        subtitle: 'Продажи, заказы и клиенты',
                         icon: Icons.insights_outlined,
-                        dropHeight: 44,
+                        color: const Color(0xFF3E6E8E),
                         onTap: () => _enter(AppRoutes.managerDashboard),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 28),
               ],
             ),
           ),
@@ -95,63 +124,62 @@ class ModeSelectScreen extends StatelessWidget {
   }
 }
 
-/// A product-tag badge "hanging" from a short string — [dropHeight] varies
-/// per tag so the pair reads as two real tags at slightly different
-/// lengths, not a mechanically mirrored pair.
-class _HangingTag extends StatelessWidget {
-  const _HangingTag({
+class _ModeRow extends StatelessWidget {
+  const _ModeRow({
     required this.title,
     required this.subtitle,
     required this.icon,
-    required this.dropHeight,
+    required this.color,
     required this.onTap,
   });
 
   final String title;
   final String subtitle;
   final IconData icon;
-  final double dropHeight;
+  final Color color;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(width: 1.5, height: dropHeight, color: Colors.white.withValues(alpha: 0.55)),
-        Material(
-          color: BrandColors.cream,
-          shape: const StadiumBorder(side: BorderSide(color: BrandColors.red, width: 2)),
-          elevation: 6,
-          shadowColor: Colors.black54,
-          child: InkWell(
-            customBorder: const StadiumBorder(),
-            onTap: onTap,
-            child: Container(
-              width: 136,
-              padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 14),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(icon, color: BrandColors.redDark, size: 26),
-                  const SizedBox(height: 6),
-                  Text(
-                    title,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: BrandColors.black),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 10.5, color: Colors.black.withValues(alpha: 0.6), height: 1.2),
-                  ),
-                ],
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: BrandColors.border, width: 1),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, color: color, size: 22),
               ),
-            ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+                    const SizedBox(height: 2),
+                    Text(subtitle, style: TextStyle(color: Colors.grey.shade600, fontSize: 12.5)),
+                  ],
+                ),
+              ),
+              Icon(Icons.chevron_right, color: Colors.black.withValues(alpha: 0.3)),
+            ],
           ),
         ),
-      ],
+      ),
     );
   }
 }
