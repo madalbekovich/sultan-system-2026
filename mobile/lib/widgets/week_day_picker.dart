@@ -21,7 +21,7 @@ class WeekDayPicker extends StatelessWidget {
     final days = List.generate(7, (i) => DateTime(today.year, today.month, today.day + i));
 
     return SizedBox(
-      height: 68,
+      height: 76,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
