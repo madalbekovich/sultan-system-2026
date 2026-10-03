@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' as intl;
 
+import '../core/formatting.dart';
 import '../core/theme.dart';
 import '../models/dashboard_analytics.dart';
 
@@ -34,7 +35,7 @@ class SalesBarChart extends StatelessWidget {
                 children: [
                   if (entry.totalAmount > 0)
                     Text(
-                      _compact(entry.totalAmount),
+                      formatMoneyCompact(entry.totalAmount),
                       style: numberStyle(fontSize: 10.5, color: AppColors.textSecondary),
                     ),
                   const SizedBox(height: AppSpacing.xs),
@@ -61,10 +62,5 @@ class SalesBarChart extends StatelessWidget {
         }).toList(),
       ),
     );
-  }
-
-  String _compact(double value) {
-    if (value >= 1000) return '${(value / 1000).toStringAsFixed(0)}к';
-    return value.toStringAsFixed(0);
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../core/tokens.dart';
+import 'pressable.dart';
 
 /// Card used across the app: thin neutral border, a restrained shadow,
 /// and an optional colored accent bar on the left for status/category —
@@ -48,13 +49,6 @@ class TicketCard extends StatelessWidget {
     );
 
     if (onTap == null) return content;
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        child: content,
-      ),
-    );
+    return Pressable(onTap: onTap, child: content);
   }
 }

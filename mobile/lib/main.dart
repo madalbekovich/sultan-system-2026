@@ -43,6 +43,8 @@ class SultanSystemApp extends StatelessWidget {
       title: 'Султан Цех',
       debugShowCheckedModeBanner: false,
       theme: buildAppTheme(),
+      defaultTransition: Transition.fadeIn,
+      transitionDuration: AppDurations.medium,
       initialRoute: AppRoutes.modeSelect,
       getPages: [
         GetPage(name: AppRoutes.modeSelect, page: () => const ModeSelectScreen()),

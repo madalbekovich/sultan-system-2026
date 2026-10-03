@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
+import '../../../core/formatting.dart';
 import '../../../core/get_utils.dart';
 import '../../../core/ru_text.dart';
 import '../../../core/theme.dart';
@@ -8,7 +10,9 @@ import '../../../data/orders_repository.dart';
 import '../../../models/order.dart';
 import '../../../widgets/app_header.dart';
 import '../../../widgets/client_avatar.dart';
+import '../../../widgets/fade_in.dart';
 import '../../../widgets/sales_bar_chart.dart';
+import '../../../widgets/skeleton.dart';
 import '../../../widgets/stamp_badge.dart';
 import '../../../widgets/status_views.dart';
 import '../../../widgets/ticket_card.dart';
@@ -26,14 +30,32 @@ class ManagerDashboardScreen extends StatelessWidget {
       tag: 'manager_dashboard',
     )..reload();
 
-    return Scaffold(
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light,
+      child: Scaffold(
       backgroundColor: AppColors.cream,
       body: Obx(() {
-        if (controller.isLoading.value && controller.analytics.value == null) {
-          return const LoadingView();
+        final showSkeleton = controller.isLoading.value && controller.analytics.value == null;
+        if (showSkeleton) {
+          return AnimatedSwitcher(
+            duration: AppDurations.medium,
+            switchInCurve: AppCurves.enter,
+            child: ListView(
+              key: const ValueKey('skeleton'),
+              padding: EdgeInsets.zero,
+              children: [
+                AppHeader(subtitle: formattedToday()),
+                const SkeletonCardList(count: 6),
+              ],
+            ),
+          );
         }
         final analytics = controller.analytics.value;
-        return RefreshIndicator(
+        return AnimatedSwitcher(
+          duration: AppDurations.medium,
+          switchInCurve: AppCurves.enter,
+          child: RefreshIndicator(
+          key: const ValueKey('content'),
           onRefresh: controller.reload,
           child: ListView(
             padding: EdgeInsets.zero,
@@ -60,7 +82,7 @@ class ManagerDashboardScreen extends StatelessWidget {
                         Expanded(
                           child: _StatCard(
                             label: 'Продажи сегодня',
-                            value: controller.totalSalesToday.toStringAsFixed(0),
+                            value: formatMoneyNumber(controller.totalSalesToday),
                             suffix: 'сом',
                             icon: Icons.payments_outlined,
                           ),
@@ -81,7 +103,7 @@ class ManagerDashboardScreen extends StatelessWidget {
                         Expanded(
                           child: _StatCard(
                             label: 'Средний чек',
-                            value: controller.averageOrderValue.toStringAsFixed(0),
+                            value: formatMoneyNumber(controller.averageOrderValue),
                             suffix: 'сом',
                             icon: Icons.calculate_outlined,
                           ),
@@ -105,7 +127,7 @@ class ManagerDashboardScreen extends StatelessWidget {
                         Text('Продажи за неделю', style: headingStyle()),
                         if (analytics != null)
                           Text(
-                            '${analytics.dailySales.fold<double>(0, (s, d) => s + d.totalAmount).toStringAsFixed(0)} сом',
+                            formatMoney(analytics.dailySales.fold<double>(0, (s, d) => s + d.totalAmount)),
                             style: numberStyle(fontSize: 14, color: AppColors.textSecondary),
                           ),
                       ],
@@ -126,46 +148,50 @@ class ManagerDashboardScreen extends StatelessWidget {
                         child: Text('Пока нет заказов за этот период.',
                             style: TextStyle(color: AppColors.textSecondary)),
                       ),
-                    ...?analytics?.topProducts.map(
-                      (entry) => Padding(
-                        padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                        child: TicketCard(
-                          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md + 2, vertical: AppSpacing.sm + 2),
-                          child: Builder(builder: (context) {
-                            final (icon, color) = productVisual(entry.productName);
-                            return Row(
-                              children: [
-                                Container(
-                                  width: 34,
-                                  height: 34,
-                                  decoration: BoxDecoration(
-                                    color: color.withValues(alpha: 0.12),
-                                    borderRadius: BorderRadius.circular(AppRadius.sm),
+                    ...?analytics?.topProducts.asMap().entries.map(
+                      (indexed) {
+                        final entry = indexed.value;
+                        final (icon, color) = productVisual(entry.productName);
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                          child: StaggeredFadeIn(
+                            index: indexed.key,
+                            child: TicketCard(
+                              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md + 2, vertical: AppSpacing.sm + 2),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 34,
+                                    height: 34,
+                                    decoration: BoxDecoration(
+                                      color: color.withValues(alpha: 0.12),
+                                      borderRadius: BorderRadius.circular(AppRadius.sm),
+                                    ),
+                                    child: Icon(icon, color: color, size: 17),
                                   ),
-                                  child: Icon(icon, color: color, size: 17),
-                                ),
-                                const SizedBox(width: AppSpacing.md),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(entry.productName, style: const TextStyle(fontWeight: FontWeight.w600)),
-                                      Text(
-                                        clientsCountRu(entry.clientCount),
-                                        style: const TextStyle(color: AppColors.textSecondary, fontSize: 12.5),
-                                      ),
-                                    ],
+                                  const SizedBox(width: AppSpacing.md),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(entry.productName, style: const TextStyle(fontWeight: FontWeight.w600)),
+                                        Text(
+                                          clientsCountRu(entry.clientCount),
+                                          style: const TextStyle(color: AppColors.textSecondary, fontSize: 12.5),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                Text(
-                                  '${entry.totalPlannedQty} ${unitLabelRu(entry.unitType)}',
-                                  style: numberStyle(fontSize: 16),
-                                ),
-                              ],
-                            );
-                          }),
-                        ),
-                      ),
+                                  Text(
+                                    formatQtyLabel(entry.totalPlannedQty, unitLabelRu(entry.unitType)),
+                                    style: numberStyle(fontSize: 16),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      },
                     ),
 
                     const SizedBox(height: AppSpacing.xxl - 4),
@@ -179,44 +205,52 @@ class ManagerDashboardScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                    ...?analytics?.recentOrders.map(
-                      (order) => Padding(
-                        padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                        child: TicketCard(
-                          accentColor: orderStatusColor(order.status),
-                          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md + 2, vertical: AppSpacing.sm + 2),
-                          child: Row(
-                            children: [
-                              ClientAvatar(name: order.clientName ?? 'Клиент №${order.clientId}', size: 36),
-                              const SizedBox(width: AppSpacing.md),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      order.clientName ?? 'Клиент №${order.clientId}',
-                                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ...?analytics?.recentOrders.asMap().entries.map(
+                      (indexed) {
+                        final order = indexed.value;
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                          child: StaggeredFadeIn(
+                            index: indexed.key,
+                            child: TicketCard(
+                              accentColor: orderStatusColor(order.status),
+                              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md + 2, vertical: AppSpacing.sm + 2),
+                              child: Row(
+                                children: [
+                                  ClientAvatar(name: order.clientName ?? 'Клиент №${order.clientId}', size: 36),
+                                  const SizedBox(width: AppSpacing.md),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          order.clientName ?? 'Клиент №${order.clientId}',
+                                          style: const TextStyle(fontWeight: FontWeight.w600),
+                                        ),
+                                        Text(
+                                          '№${order.id} · ${formatMoney(order.totalAmount)}',
+                                          style: const TextStyle(color: AppColors.textSecondary, fontSize: 12.5),
+                                        ),
+                                      ],
                                     ),
-                                    Text(
-                                      '№${order.id} · ${order.totalAmount.toStringAsFixed(0)} сом',
-                                      style: const TextStyle(color: AppColors.textSecondary, fontSize: 12.5),
-                                    ),
-                                  ],
-                                ),
+                                  ),
+                                  StampBadge(label: order.status.label, color: orderStatusColor(order.status)),
+                                ],
                               ),
-                              StampBadge(label: order.status.label, color: orderStatusColor(order.status)),
-                            ],
+                            ),
                           ),
-                        ),
-                      ),
+                        );
+                      },
                     ),
                   ],
                 ),
               ),
             ],
           ),
+          ),
         );
       }),
+      ),
     );
   }
 }

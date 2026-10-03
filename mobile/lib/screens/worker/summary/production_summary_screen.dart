@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
+import '../../../core/formatting.dart';
 import '../../../core/get_utils.dart';
 import '../../../core/ru_text.dart';
 import '../../../core/theme.dart';
 import '../../../data/orders_repository.dart';
 import '../../../widgets/app_header.dart';
+import '../../../widgets/fade_in.dart';
+import '../../../widgets/skeleton.dart';
 import '../../../widgets/status_views.dart';
 import '../../../widgets/ticket_card.dart';
 import '../../../widgets/week_day_picker.dart';
@@ -21,7 +25,9 @@ class ProductionSummaryScreen extends StatelessWidget {
       tag: 'production_summary',
     )..reload(silent: true);
 
-    return Scaffold(
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light,
+      child: Scaffold(
       backgroundColor: AppColors.cream,
       body: Column(
         children: [
@@ -33,69 +39,84 @@ class ProductionSummaryScreen extends StatelessWidget {
               )),
           Expanded(
             child: Obx(() {
-              if (controller.isLoading.value && controller.summary.value == null) {
-                return const LoadingView();
-              }
+              final showSkeleton = controller.isLoading.value && controller.summary.value == null;
               final summary = controller.summary.value;
-              if (summary == null) {
-                return ErrorView(
+              final Widget content;
+              if (showSkeleton) {
+                content = const SkeletonCardList(key: ValueKey('skeleton'));
+              } else if (summary == null) {
+                content = ErrorView(
+                  key: const ValueKey('error'),
                   message: 'Пока нет данных. Потяните вниз, чтобы обновить.',
                   onRetry: controller.reload,
                 );
-              }
-              if (summary.products.isEmpty) {
-                return const Center(child: Text('На этот день заказов пока нет.'));
-              }
-              return RefreshIndicator(
-                onRefresh: controller.reload,
-                child: ListView.separated(
-                  padding: const EdgeInsets.all(AppSpacing.lg),
-                  itemCount: summary.products.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm + 2),
-                  itemBuilder: (context, index) {
-                    final entry = summary.products[index];
-                    final (icon, color) = productVisual(entry.productName);
-                    return TicketCard(
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              color: color.withValues(alpha: 0.12),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(icon, color: color, size: 20),
-                          ),
-                          const SizedBox(width: AppSpacing.md + 2),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  entry.productName,
-                                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+              } else if (summary.products.isEmpty) {
+                content = const Center(
+                  key: ValueKey('empty'),
+                  child: Text('На этот день заказов пока нет.'),
+                );
+              } else {
+                content = RefreshIndicator(
+                  key: const ValueKey('list'),
+                  onRefresh: controller.reload,
+                  child: ListView.separated(
+                    padding: const EdgeInsets.all(AppSpacing.lg),
+                    itemCount: summary.products.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm + 2),
+                    itemBuilder: (context, index) {
+                      final entry = summary.products[index];
+                      final (icon, color) = productVisual(entry.productName);
+                      return StaggeredFadeIn(
+                        index: index,
+                        child: TicketCard(
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  color: color.withValues(alpha: 0.12),
+                                  shape: BoxShape.circle,
                                 ),
-                                Text(
-                                  clientsCountRu(entry.clientCount),
-                                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                                child: Icon(icon, color: color, size: 20),
+                              ),
+                              const SizedBox(width: AppSpacing.md + 2),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      entry.productName,
+                                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                                    ),
+                                    Text(
+                                      clientsCountRu(entry.clientCount),
+                                      style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
+                              ),
+                              Text(
+                                formatQtyLabel(entry.totalPlannedQty, unitLabelRu(entry.unitType)),
+                                style: numberStyle(fontSize: 21, color: AppColors.redDark),
+                              ),
+                            ],
                           ),
-                          Text(
-                            '${entry.totalPlannedQty} ${unitLabelRu(entry.unitType)}',
-                            style: numberStyle(fontSize: 21, color: AppColors.redDark),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
+                        ),
+                      );
+                    },
+                  ),
+                );
+              }
+              return AnimatedSwitcher(
+                duration: AppDurations.medium,
+                switchInCurve: AppCurves.enter,
+                child: content,
               );
             }),
           ),
         ],
+      ),
       ),
     );
   }

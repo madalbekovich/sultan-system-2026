@@ -229,11 +229,14 @@ ThemeData buildAppTheme() {
     ),
     switchTheme: SwitchThemeData(
       thumbColor: WidgetStateProperty.resolveWith(
-        (states) => states.contains(WidgetState.selected) ? AppColors.red : null,
+        (states) => states.contains(WidgetState.selected) ? Colors.white : Colors.white,
       ),
       trackColor: WidgetStateProperty.resolveWith(
-        (states) => states.contains(WidgetState.selected) ? AppColors.yellow : null,
+        (states) => states.contains(WidgetState.selected)
+            ? AppColors.black
+            : AppColors.textMuted.withValues(alpha: 0.4),
       ),
+      trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),
     ),
   );
 }

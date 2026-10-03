@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
+import '../../../core/formatting.dart';
 import '../../../core/get_utils.dart';
 import '../../../core/ru_text.dart';
 import '../../../core/theme.dart';
@@ -8,6 +10,8 @@ import '../../../core/waybill_actions.dart';
 import '../../../data/orders_repository.dart';
 import '../../../models/order.dart';
 import '../../../widgets/client_avatar.dart';
+import '../../../widgets/fade_in.dart';
+import '../../../widgets/skeleton.dart';
 import '../../../widgets/stamp_badge.dart';
 import '../../../widgets/status_views.dart';
 import '../../../widgets/ticket_card.dart';
@@ -35,30 +39,45 @@ class ManagerOrdersScreen extends StatelessWidget {
               )),
           Expanded(
             child: Obx(() {
-              if (controller.isLoading.value && controller.orders.isEmpty) {
-                return const LoadingView();
-              }
-              if (controller.orders.isEmpty) {
-                return ErrorView(
+              final showSkeleton = controller.isLoading.value && controller.orders.isEmpty;
+              final Widget content;
+              if (showSkeleton) {
+                content = const SkeletonCardList(key: ValueKey('skeleton'));
+              } else if (controller.orders.isEmpty) {
+                content = ErrorView(
+                  key: const ValueKey('error'),
                   message: 'На этот день заказов нет.',
                   onRetry: controller.reload,
                 );
+              } else {
+                content = RefreshIndicator(
+                  key: const ValueKey('list'),
+                  onRefresh: controller.reload,
+                  child: ListView.separated(
+                    padding: const EdgeInsets.all(AppSpacing.lg),
+                    itemCount: controller.orders.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.md + 2),
+                    itemBuilder: (context, index) {
+                      final order = controller.orders[index];
+                      return StaggeredFadeIn(
+                        index: index,
+                        child: _OrderCard(
+                          order: order,
+                          isUpdating: controller.updatingOrderIds.contains(order.id),
+                          onStatusChange: (status) {
+                            HapticFeedback.selectionClick();
+                            controller.changeStatus(order, status);
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                );
               }
-              return RefreshIndicator(
-                onRefresh: controller.reload,
-                child: ListView.separated(
-                  padding: const EdgeInsets.all(AppSpacing.lg),
-                  itemCount: controller.orders.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.md + 2),
-                  itemBuilder: (context, index) {
-                    final order = controller.orders[index];
-                    return _OrderCard(
-                      order: order,
-                      isUpdating: controller.updatingOrderIds.contains(order.id),
-                      onStatusChange: (status) => controller.changeStatus(order, status),
-                    );
-                  },
-                ),
+              return AnimatedSwitcher(
+                duration: AppDurations.medium,
+                switchInCurve: AppCurves.enter,
+                child: content,
               );
             }),
           ),
@@ -101,20 +120,11 @@ class _OrderCard extends StatelessWidget {
               Text('№${order.id}', style: numberStyle(fontSize: 14, color: AppColors.textSecondary)),
             ],
           ),
-          const SizedBox(height: AppSpacing.sm),
-          Row(
-            children: [
-              Text(
-                '${itemsCountRu(order.items.length)} · ',
-                style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
-              ),
-              Text(
-                '${order.totalAmount.toStringAsFixed(0)} сом',
-                style: numberStyle(fontSize: 14, weight: FontWeight.w700),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.xs + 2),
+          Text(itemsCountRu(order.items.length), style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+          const SizedBox(height: 2),
+          Text(formatMoney(order.totalAmount), style: numberStyle(fontSize: 24, weight: FontWeight.w800)),
+          const SizedBox(height: AppSpacing.sm + 2),
           Row(
             children: [
               if (isUpdating)
@@ -140,13 +150,15 @@ class _OrderCard extends StatelessWidget {
                 ),
               const Spacer(),
               IconButton(
+                visualDensity: VisualDensity.compact,
                 tooltip: 'Печать накладной',
-                icon: const Icon(Icons.print, color: AppColors.black),
+                icon: const Icon(Icons.print_outlined, color: AppColors.textMuted, size: 19),
                 onPressed: () => WaybillActions.print(order.id),
               ),
               IconButton(
+                visualDensity: VisualDensity.compact,
                 tooltip: 'Отправить накладную',
-                icon: const Icon(Icons.share, color: AppColors.black),
+                icon: const Icon(Icons.share_outlined, color: AppColors.textMuted, size: 19),
                 onPressed: () => WaybillActions.share(order.id),
               ),
             ],

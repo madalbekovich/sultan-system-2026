@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
+import '../../../core/formatting.dart';
 import '../../../core/get_utils.dart';
 import '../../../core/theme.dart';
 import '../../../data/products_repository.dart';
-import '../../../models/product.dart';
+import '../../../widgets/fade_in.dart';
+import '../../../widgets/skeleton.dart';
 import '../../../widgets/status_views.dart';
 import 'catalog_controller.dart';
 import 'product_form_sheet.dart';
@@ -47,51 +50,70 @@ class CatalogScreen extends StatelessWidget {
           ),
           Expanded(
             child: Obx(() {
-              if (controller.isLoading.value && controller.products.isEmpty) {
-                return const LoadingView();
-              }
+              final showSkeleton = controller.isLoading.value && controller.products.isEmpty;
               final items = controller.filteredProducts;
-              if (items.isEmpty) {
-                return ErrorView(
+              final Widget content;
+              if (showSkeleton) {
+                content = const SkeletonCardList(
+                  key: ValueKey('skeleton'),
+                  padding: EdgeInsets.symmetric(vertical: AppSpacing.sm),
+                );
+              } else if (items.isEmpty) {
+                content = ErrorView(
+                  key: const ValueKey('error'),
                   message: controller.products.isEmpty
                       ? 'Пока нет товаров.'
                       : 'Ничего не найдено.',
                   onRetry: controller.reload,
                 );
-              }
-              return RefreshIndicator(
-                onRefresh: controller.reload,
-                child: ListView.separated(
-                  itemCount: items.length,
-                  separatorBuilder: (_, __) => const Divider(height: 1),
-                  itemBuilder: (context, index) {
-                    final product = items[index];
-                    final categoryName = controller.categoryName(product.categoryId);
-                    final (icon, color) = productVisual(categoryName);
-                    return ListTile(
-                      leading: Container(
-                        width: 42,
-                        height: 42,
-                        decoration: BoxDecoration(
-                          color: color.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(AppRadius.md),
+              } else {
+                content = RefreshIndicator(
+                  key: const ValueKey('list'),
+                  onRefresh: controller.reload,
+                  child: ListView.separated(
+                    padding: const EdgeInsets.only(bottom: 96),
+                    itemCount: items.length,
+                    separatorBuilder: (_, __) => const Divider(height: 1),
+                    itemBuilder: (context, index) {
+                      final product = items[index];
+                      final categoryName = controller.categoryName(product.categoryId);
+                      final (icon, color) = productVisual(categoryName);
+                      return StaggeredFadeIn(
+                        index: index,
+                        child: ListTile(
+                          leading: Container(
+                            width: 42,
+                            height: 42,
+                            decoration: BoxDecoration(
+                              color: color.withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(AppRadius.md),
+                            ),
+                            child: Icon(icon, color: color, size: 22),
+                          ),
+                          title: Text(
+                            product.name,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          subtitle: Text('$categoryName · ${formatPricePerUnit(product.pricePerUnit, product.unitType)}'),
+                          onTap: () => showProductFormSheet(context, controller, existing: product),
+                          trailing: Switch(
+                            value: product.isActive,
+                            onChanged: (_) {
+                              HapticFeedback.lightImpact();
+                              controller.toggleActive(product);
+                            },
+                          ),
                         ),
-                        child: Icon(icon, color: color, size: 22),
-                      ),
-                      title: Text(
-                        product.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      subtitle: Text('$categoryName · ${product.pricePerUnit}/${product.unitType.label}'),
-                      onTap: () => showProductFormSheet(context, controller, existing: product),
-                      trailing: Switch(
-                        value: product.isActive,
-                        onChanged: (_) => controller.toggleActive(product),
-                      ),
-                    );
-                  },
-                ),
+                      );
+                    },
+                  ),
+                );
+              }
+              return AnimatedSwitcher(
+                duration: AppDurations.medium,
+                switchInCurve: AppCurves.enter,
+                child: content,
               );
             }),
           ),

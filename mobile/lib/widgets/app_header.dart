@@ -39,44 +39,27 @@ class AppHeader extends StatelessWidget {
           colors: [AppColors.graphite, AppColors.black],
         ),
       ),
-      child: Stack(
-        clipBehavior: Clip.none,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Positioned(
-            right: -30,
-            top: -30,
-            child: Container(
-              width: 140,
-              height: 140,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.white.withValues(alpha: 0.06), width: 24),
-              ),
+          const BrandLogo(size: 46),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  greetingForNow(),
+                  style: const TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.w700),
+                ),
+                Text(
+                  subtitle,
+                  style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 13),
+                ),
+              ],
             ),
           ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const BrandLogo(size: 46),
-              const SizedBox(width: AppSpacing.md),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      greetingForNow(),
-                      style: const TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.w700),
-                    ),
-                    Text(
-                      subtitle,
-                      style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 13),
-                    ),
-                  ],
-                ),
-              ),
-              if (action != null) action!,
-            ],
-          ),
+          if (action != null) action!,
         ],
       ),
     );

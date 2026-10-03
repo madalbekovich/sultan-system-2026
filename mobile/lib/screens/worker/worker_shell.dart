@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../core/theme.dart';
+import '../../widgets/fade_in.dart';
 import 'assembly/order_list_screen.dart';
 import 'summary/production_summary_screen.dart';
 
@@ -22,10 +24,13 @@ class _WorkerShellState extends State<WorkerShell> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(index: _index, children: _pages),
+      body: FadeIndexedStack(index: _index, children: _pages),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
-        onDestinationSelected: (i) => setState(() => _index = i),
+        onDestinationSelected: (i) {
+          HapticFeedback.selectionClick();
+          setState(() => _index = i);
+        },
         backgroundColor: Colors.white,
         indicatorColor: AppColors.black,
         destinations: const [

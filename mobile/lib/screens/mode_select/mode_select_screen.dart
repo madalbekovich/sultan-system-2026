@@ -6,23 +6,22 @@ import '../../core/theme.dart';
 import '../../data/auth_repository.dart';
 import '../../routes/app_routes.dart';
 import '../../widgets/brand_logo.dart';
+import '../../widgets/pressable.dart';
 
 const _heroImagePath = 'assets/images/hero_meat.jpg';
-// The photo's real pixel dimensions — an AspectRatio box this exact shape
-// means BoxFit.cover shows the whole image with zero cropping.
-const _heroAspectRatio = 1251 / 832;
 
-/// Entry screen: same light, calm look as the rest of the app (cream
-/// background, bordered cards) instead of a one-off dark showpiece — the
-/// product photo sits as a banner up top and fades into the page, and the
-/// two modes are plain, legible rows, not decorative badges.
+/// Entry screen: a short photo strip up top (no text/logo overlaid on
+/// it), then the logo, wordmark and the two mode cards on the plain
+/// cream background below — nothing competes with the photo's own
+/// "Султан" branding, and the screen stays short instead of leaving a
+/// dead zone under the cards.
 class ModeSelectScreen extends StatelessWidget {
   const ModeSelectScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.dark,
+      value: SystemUiOverlayStyle.light,
       child: Scaffold(
         backgroundColor: AppColors.cream,
         body: SafeArea(
@@ -31,68 +30,44 @@ class ModeSelectScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Stack(
-                  children: [
-                    AspectRatio(
-                      aspectRatio: _heroAspectRatio,
-                      child: Image.asset(
-                        _heroImagePath,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) =>
-                            Container(color: AppColors.graphite),
-                      ),
-                    ),
-                    Positioned(
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      height: 56,
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              AppColors.cream.withValues(alpha: 0),
-                              AppColors.cream,
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      left: 0,
-                      right: 0,
-                      top: 100,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const BrandLogo(size: 48),
-                          const SizedBox(height: 10),
-                          Text(
-                            'Султан Цех',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 26,
-                              fontWeight: FontWeight.w800,
-                              shadows: [Shadow(color: Colors.black.withValues(alpha: 0.5), blurRadius: 8)],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                SizedBox(
+                  height: 200,
+                  width: double.infinity,
+                  child: Image.asset(
+                    _heroImagePath,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) =>
+                        Container(color: AppColors.graphite),
+                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(
                     AppSpacing.lg,
-                    AppSpacing.xs,
+                    AppSpacing.xl,
                     AppSpacing.lg,
                     AppSpacing.lg,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      const Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            BrandLogo(size: 56),
+                            SizedBox(height: AppSpacing.sm + 2),
+                            Text(
+                              'Султан Цех',
+                              style: TextStyle(
+                                color: AppColors.black,
+                                fontSize: 22,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.xxl - 4),
                       Text('Выберите режим', style: headingStyle(fontSize: 13, color: AppColors.textSecondary)),
                       const SizedBox(height: AppSpacing.md),
                       _ModeRow(
@@ -122,6 +97,7 @@ class ModeSelectScreen extends StatelessWidget {
   }
 
   void _enter(String targetRoute) {
+    HapticFeedback.selectionClick();
     final auth = Get.find<AuthRepository>();
     if (auth.isLoggedIn) {
       Get.toNamed(targetRoute);
@@ -148,43 +124,39 @@ class _ModeRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(AppRadius.lg),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(AppRadius.lg),
-            border: Border.all(color: AppColors.border, width: 1),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md + 2),
-          child: Row(
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(AppRadius.md),
-                ),
-                child: Icon(icon, color: color, size: 22),
+    return Pressable(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+          border: Border.all(color: AppColors.border, width: 1),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md + 2),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(AppRadius.md),
               ),
-              const SizedBox(width: AppSpacing.md + 2),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(title, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
-                    const SizedBox(height: 2),
-                    Text(subtitle, style: const TextStyle(color: AppColors.textSecondary, fontSize: 12.5)),
-                  ],
-                ),
+              child: Icon(icon, color: color, size: 22),
+            ),
+            const SizedBox(width: AppSpacing.md + 2),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+                  const SizedBox(height: 2),
+                  Text(subtitle, style: const TextStyle(color: AppColors.textSecondary, fontSize: 12.5)),
+                ],
               ),
-              const Icon(Icons.chevron_right, color: AppColors.textMuted),
-            ],
-          ),
+            ),
+            const Icon(Icons.chevron_right, color: AppColors.textMuted),
+          ],
         ),
       ),
     );

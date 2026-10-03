@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../core/formatting.dart';
 import '../../../core/theme.dart';
 import '../../../data/orders_repository.dart';
 import '../../../models/client.dart';
 import '../../../models/order.dart';
 import '../../../widgets/client_avatar.dart';
+import '../../../widgets/fade_in.dart';
+import '../../../widgets/skeleton.dart';
 import '../../../widgets/stamp_badge.dart';
 import '../../../widgets/status_views.dart';
 import '../../../widgets/ticket_card.dart';
@@ -26,11 +29,18 @@ class ClientDetailScreen extends StatelessWidget {
       backgroundColor: AppColors.cream,
       appBar: AppBar(title: Text(client.name)),
       body: Obx(() {
-        if (controller.isLoading.value) return const LoadingView();
-        if (controller.errorMessage.value != null) {
-          return ErrorView(message: controller.errorMessage.value!, onRetry: controller.load);
-        }
-        return RefreshIndicator(
+        final Widget content;
+        if (controller.isLoading.value) {
+          content = const SkeletonCardList(key: ValueKey('skeleton'));
+        } else if (controller.errorMessage.value != null) {
+          content = ErrorView(
+            key: const ValueKey('error'),
+            message: controller.errorMessage.value!,
+            onRetry: controller.load,
+          );
+        } else {
+          content = RefreshIndicator(
+          key: const ValueKey('content'),
           onRefresh: controller.load,
           child: ListView(
             padding: const EdgeInsets.all(AppSpacing.lg),
@@ -41,7 +51,10 @@ class ClientDetailScreen extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        ClientAvatar(name: client.name, size: 52),
+                        Hero(
+                          tag: 'client-avatar-${client.id}',
+                          child: ClientAvatar(name: client.name, size: 52),
+                        ),
                         const SizedBox(width: AppSpacing.md + 2),
                         Expanded(
                           child: Column(
@@ -49,7 +62,7 @@ class ClientDetailScreen extends StatelessWidget {
                             children: [
                               Text(client.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
                               Text(
-                                'Всего заказано: ${controller.totalSpent.toStringAsFixed(0)} сом',
+                                'Всего заказано: ${formatMoney(controller.totalSpent)}',
                                 style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
                               ),
                             ],
@@ -59,7 +72,8 @@ class ClientDetailScreen extends StatelessWidget {
                     ),
                     if (client.phone != null || client.address != null) ...[
                       const Divider(height: AppSpacing.xl),
-                      if (client.phone != null) _InfoRow(icon: Icons.phone_outlined, text: client.phone!),
+                      if (client.phone != null)
+                        _InfoRow(icon: Icons.phone_outlined, text: formatPhone(client.phone)),
                       if (client.address != null)
                         _InfoRow(icon: Icons.location_on_outlined, text: client.address!),
                     ],
@@ -77,37 +91,49 @@ class ClientDetailScreen extends StatelessWidget {
                   ),
                 )
               else
-                ...controller.orders.map(
-                  (order) => Padding(
-                    padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                    child: TicketCard(
-                      accentColor: orderStatusColor(order.status),
-                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm + 2),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  '№${order.id} · ${order.deliveryDate.toLocal().toString().split(' ').first}',
-                                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ...controller.orders.asMap().entries.map(
+                  (indexed) {
+                    final order = indexed.value;
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                      child: StaggeredFadeIn(
+                        index: indexed.key,
+                        child: TicketCard(
+                          accentColor: orderStatusColor(order.status),
+                          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm + 2),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      '№${order.id} · ${order.deliveryDate.toLocal().toString().split(' ').first}',
+                                      style: const TextStyle(fontWeight: FontWeight.w600),
+                                    ),
+                                    Text(
+                                      '${order.items.length} поз. · ${formatMoney(order.totalAmount)}',
+                                      style: const TextStyle(color: AppColors.textSecondary, fontSize: 12.5),
+                                    ),
+                                  ],
                                 ),
-                                Text(
-                                  '${order.items.length} поз. · ${order.totalAmount.toStringAsFixed(0)} сом',
-                                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 12.5),
-                                ),
-                              ],
-                            ),
+                              ),
+                              StampBadge(label: order.status.label, color: orderStatusColor(order.status)),
+                            ],
                           ),
-                          StampBadge(label: order.status.label, color: orderStatusColor(order.status)),
-                        ],
+                        ),
                       ),
-                    ),
-                  ),
+                    );
+                  },
                 ),
             ],
           ),
+          );
+        }
+        return AnimatedSwitcher(
+          duration: AppDurations.medium,
+          switchInCurve: AppCurves.enter,
+          child: content,
         );
       }),
     );

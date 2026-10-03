@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
+import '../../../core/formatting.dart';
 import '../../../core/theme.dart';
 import '../../../data/orders_repository.dart';
 import '../../../models/order.dart';
@@ -38,7 +40,10 @@ class OrderWeighingScreen extends StatelessWidget {
               padding: const EdgeInsets.all(AppSpacing.lg),
               child: Row(
                 children: [
-                  ClientAvatar(name: clientName, size: 40),
+                  Hero(
+                    tag: 'order-avatar-$orderId',
+                    child: ClientAvatar(name: clientName, size: 40),
+                  ),
                   const SizedBox(width: AppSpacing.md),
                   Expanded(
                     child: Text(
@@ -69,7 +74,7 @@ class OrderWeighingScreen extends StatelessWidget {
                     children: [
                       const Text('Итого', style: TextStyle(fontSize: 20)),
                       Text(
-                        controller.liveTotal.toStringAsFixed(2),
+                        formatMoney(controller.liveTotal),
                         style: numberStyle(fontSize: 28),
                       ),
                     ],
@@ -93,13 +98,19 @@ class OrderWeighingScreen extends StatelessWidget {
                     BigButton(
                       label: 'Отметить как отправленный',
                       icon: Icons.local_shipping,
-                      onPressed: controller.markDispatched,
+                      onPressed: () {
+                        HapticFeedback.mediumImpact();
+                        controller.markDispatched();
+                      },
                     ),
                   ] else
                     BigButton(
                       label: 'Отметить как собранный / готовый',
                       icon: Icons.check_circle,
-                      onPressed: controller.markReady,
+                      onPressed: () {
+                        HapticFeedback.mediumImpact();
+                        controller.markReady();
+                      },
                     ),
                 ],
               ),
@@ -190,6 +201,7 @@ class _WeighingRowState extends State<_WeighingRow> {
   void _submit() {
     final value = double.tryParse(_qtyController.text.trim().replaceAll(',', '.'));
     if (value == null || value <= 0) return;
+    HapticFeedback.lightImpact();
     widget.onSubmit(value);
   }
 }
