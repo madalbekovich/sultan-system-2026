@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' as intl;
 
 import '../core/theme.dart';
+import '../core/tokens.dart';
 import 'brand_logo.dart';
 
 String greetingForNow() {
@@ -25,12 +26,17 @@ class AppHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.fromLTRB(20, MediaQuery.of(context).padding.top + 16, 20, 22),
+      padding: EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        MediaQuery.of(context).padding.top + AppSpacing.lg,
+        AppSpacing.lg,
+        AppSpacing.xl,
+      ),
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [BrandColors.graphite, BrandColors.black],
+          colors: [AppColors.graphite, AppColors.black],
         ),
       ),
       child: Stack(
@@ -52,7 +58,7 @@ class AppHeader extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const BrandLogo(size: 46),
-              const SizedBox(width: 14),
+              const SizedBox(width: AppSpacing.md),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

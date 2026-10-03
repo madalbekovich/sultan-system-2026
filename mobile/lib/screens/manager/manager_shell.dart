@@ -34,7 +34,7 @@ class _ManagerShellState extends State<ManagerShell> {
         selectedIndex: _index,
         onDestinationSelected: (i) => setState(() => _index = i),
         backgroundColor: Colors.white,
-        indicatorColor: BrandColors.black,
+        indicatorColor: AppColors.black,
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.insights_outlined),

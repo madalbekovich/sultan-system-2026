@@ -27,7 +27,7 @@ class _WorkerShellState extends State<WorkerShell> {
         selectedIndex: _index,
         onDestinationSelected: (i) => setState(() => _index = i),
         backgroundColor: Colors.white,
-        indicatorColor: BrandColors.black,
+        indicatorColor: AppColors.black,
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.scale_outlined),

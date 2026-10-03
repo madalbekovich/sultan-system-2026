@@ -21,7 +21,7 @@ class OrderWeighingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: BrandColors.cream,
+      backgroundColor: AppColors.cream,
       appBar: AppBar(title: const Text('Взвешивание')),
       body: Obx(() {
         if (controller.isLoading.value && controller.order.value == null) {
@@ -35,11 +35,11 @@ class OrderWeighingScreen extends StatelessWidget {
         return Column(
           children: [
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(AppSpacing.lg),
               child: Row(
                 children: [
                   ClientAvatar(name: clientName, size: 40),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: AppSpacing.md),
                   Expanded(
                     child: Text(
                       clientName,
@@ -51,9 +51,9 @@ class OrderWeighingScreen extends StatelessWidget {
             ),
             Expanded(
               child: ListView.separated(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
                 itemCount: order.items.length,
-                separatorBuilder: (_, __) => const Divider(height: 32),
+                separatorBuilder: (_, __) => const Divider(height: AppSpacing.xxl),
                 itemBuilder: (context, index) => _WeighingRow(
                   item: order.items[index],
                   onSubmit: (qty) => controller.submitWeight(order.items[index].id, qty),
@@ -61,7 +61,7 @@ class OrderWeighingScreen extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(AppSpacing.lg),
               child: Column(
                 children: [
                   Row(
@@ -70,26 +70,26 @@ class OrderWeighingScreen extends StatelessWidget {
                       const Text('Итого', style: TextStyle(fontSize: 20)),
                       Text(
                         controller.liveTotal.toStringAsFixed(2),
-                        style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                        style: numberStyle(fontSize: 28),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: AppSpacing.md),
                   if (order.status == OrderStatus.dispatched)
                     const BigButton(
                       label: 'Отправлен ✓',
                       icon: Icons.local_shipping,
-                      color: Colors.blue,
+                      color: AppColors.statusDispatched,
                       onPressed: null,
                     )
                   else if (order.status == OrderStatus.ready) ...[
                     const BigButton(
                       label: 'Готов к отгрузке ✓',
                       icon: Icons.check_circle,
-                      color: Colors.green,
+                      color: AppColors.statusReady,
                       onPressed: null,
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: AppSpacing.md),
                     BigButton(
                       label: 'Отметить как отправленный',
                       icon: Icons.local_shipping,
@@ -150,7 +150,7 @@ class _WeighingRowState extends State<_WeighingRow> {
               decoration: BoxDecoration(color: color.withValues(alpha: 0.12), shape: BoxShape.circle),
               child: Icon(icon, color: color, size: 18),
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: AppSpacing.sm + 2),
             Expanded(
               child: Text(
                 productName,
@@ -159,9 +159,9 @@ class _WeighingRowState extends State<_WeighingRow> {
             ),
           ],
         ),
-        const SizedBox(height: 4),
-        Text('План: ${item.plannedQty}', style: TextStyle(color: Colors.grey.shade600)),
-        const SizedBox(height: 8),
+        const SizedBox(height: AppSpacing.xs),
+        Text('План: ${item.plannedQty}', style: const TextStyle(color: AppColors.textSecondary)),
+        const SizedBox(height: AppSpacing.sm),
         Row(
           children: [
             Expanded(
@@ -171,12 +171,11 @@ class _WeighingRowState extends State<_WeighingRow> {
                 style: const TextStyle(fontSize: 24),
                 decoration: const InputDecoration(
                   labelText: 'Фактический вес',
-                  border: OutlineInputBorder(),
                 ),
                 onSubmitted: (_) => _submit(),
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: AppSpacing.md),
             IconButton.filled(
               iconSize: 32,
               onPressed: _submit,

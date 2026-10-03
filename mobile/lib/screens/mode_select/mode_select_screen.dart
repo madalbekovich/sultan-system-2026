@@ -24,7 +24,7 @@ class ModeSelectScreen extends StatelessWidget {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.dark,
       child: Scaffold(
-        backgroundColor: BrandColors.cream,
+        backgroundColor: AppColors.cream,
         body: SafeArea(
           bottom: false,
           child: SingleChildScrollView(
@@ -39,7 +39,7 @@ class ModeSelectScreen extends StatelessWidget {
                         _heroImagePath,
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) =>
-                            Container(color: BrandColors.graphite),
+                            Container(color: AppColors.graphite),
                       ),
                     ),
                     Positioned(
@@ -53,8 +53,8 @@ class ModeSelectScreen extends StatelessWidget {
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
                             colors: [
-                              BrandColors.cream.withValues(alpha: 0),
-                              BrandColors.cream,
+                              AppColors.cream.withValues(alpha: 0),
+                              AppColors.cream,
                             ],
                           ),
                         ),
@@ -84,25 +84,30 @@ class ModeSelectScreen extends StatelessWidget {
                   ],
                 ),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.lg,
+                    AppSpacing.xs,
+                    AppSpacing.lg,
+                    AppSpacing.lg,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Выберите режим', style: headingStyle(fontSize: 13, color: Colors.black54)),
-                      const SizedBox(height: 12),
+                      Text('Выберите режим', style: headingStyle(fontSize: 13, color: AppColors.textSecondary)),
+                      const SizedBox(height: AppSpacing.md),
                       _ModeRow(
                         title: 'Цех',
                         subtitle: 'Взвешивание и сборка заказов',
                         icon: Icons.scale_outlined,
-                        color: BrandColors.redDark,
+                        color: AppColors.redDark,
                         onTap: () => _enter(AppRoutes.workerSummary),
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: AppSpacing.sm + 2),
                       _ModeRow(
                         title: 'Руководитель',
                         subtitle: 'Продажи, заказы и клиенты',
                         icon: Icons.insights_outlined,
-                        color: const Color(0xFF3E6E8E),
+                        color: AppColors.steelBlue,
                         onTap: () => _enter(AppRoutes.managerDashboard),
                       ),
                     ],
@@ -145,16 +150,16 @@ class _ModeRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: Colors.white,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(AppRadius.lg),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppRadius.lg),
         child: Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: BrandColors.border, width: 1),
+            borderRadius: BorderRadius.circular(AppRadius.lg),
+            border: Border.all(color: AppColors.border, width: 1),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md + 2),
           child: Row(
             children: [
               Container(
@@ -162,22 +167,22 @@ class _ModeRow extends StatelessWidget {
                 height: 44,
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(AppRadius.md),
                 ),
                 child: Icon(icon, color: color, size: 22),
               ),
-              const SizedBox(width: 14),
+              const SizedBox(width: AppSpacing.md + 2),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(title, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
                     const SizedBox(height: 2),
-                    Text(subtitle, style: TextStyle(color: Colors.grey.shade600, fontSize: 12.5)),
+                    Text(subtitle, style: const TextStyle(color: AppColors.textSecondary, fontSize: 12.5)),
                   ],
                 ),
               ),
-              Icon(Icons.chevron_right, color: Colors.black.withValues(alpha: 0.3)),
+              const Icon(Icons.chevron_right, color: AppColors.textMuted),
             ],
           ),
         ),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../core/tokens.dart';
+
 /// Order status badge: solid-fill pill with a readable label. Kept simple
 /// and flat — no rotation or decorative gimmicks, just a clear status
 /// indicator that's easy to scan in a list.
@@ -12,10 +14,10 @@ class StampBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 5),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(AppRadius.sm),
       ),
       child: Text(
         label,

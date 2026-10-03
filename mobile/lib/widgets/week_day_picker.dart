@@ -24,9 +24,9 @@ class WeekDayPicker extends StatelessWidget {
       height: 68,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
         itemCount: days.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.sm),
         itemBuilder: (context, index) {
           final day = days[index];
           final isSelected = _isSameDay(day, selected);
@@ -36,16 +36,16 @@ class WeekDayPicker extends StatelessWidget {
                   ? 'Завтра'
                   : intl.DateFormat.E('ru').format(day);
           return InkWell(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(AppRadius.sm),
             onTap: () => onSelected(day),
             child: Container(
               width: 62,
-              padding: const EdgeInsets.symmetric(vertical: 8),
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
               decoration: BoxDecoration(
-                color: isSelected ? BrandColors.black : Colors.white,
-                borderRadius: BorderRadius.circular(8),
+                color: isSelected ? AppColors.black : Colors.white,
+                borderRadius: BorderRadius.circular(AppRadius.sm),
                 border: Border.all(
-                  color: isSelected ? BrandColors.black : const Color(0xFFDAD4C2),
+                  color: isSelected ? AppColors.black : AppColors.border,
                   width: 1,
                 ),
               ),
@@ -65,7 +65,7 @@ class WeekDayPicker extends StatelessWidget {
                     intl.DateFormat('d.MM').format(day),
                     style: numberStyle(
                       fontSize: 14,
-                      color: isSelected ? Colors.white : BrandColors.black,
+                      color: isSelected ? Colors.white : AppColors.black,
                     ),
                   ),
                 ],

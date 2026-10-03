@@ -29,7 +29,7 @@ class CatalogScreen extends StatelessWidget {
         children: [
           Obx(() => controller.isOffline.value ? const OfflineBanner() : const SizedBox.shrink()),
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+            padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.xs),
             child: TextField(
               onChanged: (value) => controller.searchQuery.value = value,
               decoration: InputDecoration(
@@ -38,7 +38,7 @@ class CatalogScreen extends StatelessWidget {
                 filled: true,
                 fillColor: Colors.white,
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(AppRadius.lg),
                   borderSide: BorderSide.none,
                 ),
                 contentPadding: const EdgeInsets.symmetric(vertical: 0),
@@ -74,7 +74,7 @@ class CatalogScreen extends StatelessWidget {
                         height: 42,
                         decoration: BoxDecoration(
                           color: color.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(AppRadius.md),
                         ),
                         child: Icon(icon, color: color, size: 22),
                       ),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../core/tokens.dart';
+
 /// Card used across the app: thin neutral border, a restrained shadow,
 /// and an optional colored accent bar on the left for status/category —
 /// a calm, professional look rather than a decorative one.
@@ -7,7 +9,7 @@ class TicketCard extends StatelessWidget {
   const TicketCard({
     super.key,
     required this.child,
-    this.padding = const EdgeInsets.all(16),
+    this.padding = const EdgeInsets.all(AppSpacing.lg),
     this.onTap,
     this.accentColor,
   });
@@ -23,15 +25,9 @@ class TicketCard extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0xFFE2DCCB), width: 1),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        border: Border.all(color: AppColors.border, width: 1),
+        boxShadow: AppShadows.card,
       ),
       child: IntrinsicHeight(
         child: Row(
@@ -42,7 +38,7 @@ class TicketCard extends StatelessWidget {
                 width: 4,
                 decoration: BoxDecoration(
                   color: accentColor,
-                  borderRadius: const BorderRadius.horizontal(left: Radius.circular(10)),
+                  borderRadius: const BorderRadius.horizontal(left: Radius.circular(AppRadius.md)),
                 ),
               ),
             Expanded(child: Padding(padding: padding, child: child)),
@@ -56,7 +52,7 @@ class TicketCard extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(AppRadius.md),
         child: content,
       ),
     );

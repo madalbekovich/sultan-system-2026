@@ -26,3 +26,26 @@ flutter:
   assets:
     - assets/images/logo.jpg
     - assets/images/hero_meat.jpg
+  fonts:
+    # Both are variable fonts — one file, multiple weight entries so Skia
+    # resolves the real wght axis instance instead of synthesizing bold.
+    - family: Onest
+      fonts:
+        - asset: assets/fonts/Onest-Variable.ttf
+          weight: 500
+        - asset: assets/fonts/Onest-Variable.ttf
+          weight: 700
+        - asset: assets/fonts/Onest-Variable.ttf
+          weight: 800
+    - family: Manrope
+      fonts:
+        - asset: assets/fonts/Manrope-Variable.ttf
+          weight: 400
+        - asset: assets/fonts/Manrope-Variable.ttf
+          weight: 500
+        - asset: assets/fonts/Manrope-Variable.ttf
+          weight: 600
+        - asset: assets/fonts/Manrope-Variable.ttf
+          weight: 700
+        - asset: assets/fonts/Manrope-Variable.ttf
+          weight: 800

@@ -23,7 +23,7 @@ class ClientDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: BrandColors.cream,
+      backgroundColor: AppColors.cream,
       appBar: AppBar(title: Text(client.name)),
       body: Obx(() {
         if (controller.isLoading.value) return const LoadingView();
@@ -33,7 +33,7 @@ class ClientDetailScreen extends StatelessWidget {
         return RefreshIndicator(
           onRefresh: controller.load,
           child: ListView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(AppSpacing.lg),
             children: [
               TicketCard(
                 child: Column(
@@ -42,7 +42,7 @@ class ClientDetailScreen extends StatelessWidget {
                     Row(
                       children: [
                         ClientAvatar(name: client.name, size: 52),
-                        const SizedBox(width: 14),
+                        const SizedBox(width: AppSpacing.md + 2),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -50,7 +50,7 @@ class ClientDetailScreen extends StatelessWidget {
                               Text(client.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
                               Text(
                                 'Всего заказано: ${controller.totalSpent.toStringAsFixed(0)} сом',
-                                style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                                style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
                               ),
                             ],
                           ),
@@ -58,7 +58,7 @@ class ClientDetailScreen extends StatelessWidget {
                       ],
                     ),
                     if (client.phone != null || client.address != null) ...[
-                      const Divider(height: 24),
+                      const Divider(height: AppSpacing.xl),
                       if (client.phone != null) _InfoRow(icon: Icons.phone_outlined, text: client.phone!),
                       if (client.address != null)
                         _InfoRow(icon: Icons.location_on_outlined, text: client.address!),
@@ -66,23 +66,23 @@ class ClientDetailScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: AppSpacing.xl),
               Text('История заказов', style: headingStyle()),
-              const SizedBox(height: 10),
+              const SizedBox(height: AppSpacing.sm + 2),
               if (controller.orders.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 24),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: AppSpacing.xl),
                   child: Center(
-                    child: Text('Заказов пока не было.', style: TextStyle(color: Colors.grey.shade600)),
+                    child: Text('Заказов пока не было.', style: TextStyle(color: AppColors.textSecondary)),
                   ),
                 )
               else
                 ...controller.orders.map(
                   (order) => Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
+                    padding: const EdgeInsets.only(bottom: AppSpacing.sm),
                     child: TicketCard(
                       accentColor: orderStatusColor(order.status),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm + 2),
                       child: Row(
                         children: [
                           Expanded(
@@ -95,7 +95,7 @@ class ClientDetailScreen extends StatelessWidget {
                                 ),
                                 Text(
                                   '${order.items.length} поз. · ${order.totalAmount.toStringAsFixed(0)} сом',
-                                  style: TextStyle(color: Colors.grey.shade600, fontSize: 12.5),
+                                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 12.5),
                                 ),
                               ],
                             ),
@@ -123,11 +123,11 @@ class _InfoRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
       child: Row(
         children: [
-          Icon(icon, size: 18, color: BrandColors.redDark),
-          const SizedBox(width: 8),
+          Icon(icon, size: 18, color: AppColors.redDark),
+          const SizedBox(width: AppSpacing.sm),
           Expanded(child: Text(text)),
         ],
       ),

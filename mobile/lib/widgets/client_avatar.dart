@@ -1,20 +1,10 @@
 import 'package:flutter/material.dart';
 
-/// A muted, professional palette (not rainbow-random) so client avatars
-/// get some visual variety instead of every row looking identical, while
-/// still reading as "one system" rather than a confetti of colors.
-const _palette = [
-  Color(0xFFA81D14), // brand red-dark
-  Color(0xFF3E6E8E), // steel blue
-  Color(0xFF8A6A2E), // ochre
-  Color(0xFF4C7A3D), // moss
-  Color(0xFF5C5470), // muted plum
-  Color(0xFF2B6B6B), // teal
-];
+import '../core/tokens.dart';
 
 Color colorForName(String name) {
-  if (name.isEmpty) return _palette.first;
-  return _palette[name.hashCode.abs() % _palette.length];
+  if (name.isEmpty) return AppColors.avatarPalette.first;
+  return AppColors.avatarPalette[name.hashCode.abs() % AppColors.avatarPalette.length];
 }
 
 class ClientAvatar extends StatelessWidget {

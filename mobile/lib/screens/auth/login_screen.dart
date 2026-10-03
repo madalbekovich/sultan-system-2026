@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../core/tokens.dart';
 import '../../widgets/brand_logo.dart';
 import 'login_controller.dart';
 
@@ -31,7 +32,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Вход для сотрудников')),
       body: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(AppSpacing.xl),
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 400),
@@ -70,7 +71,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   if (error == null) return const SizedBox.shrink();
                   return Padding(
                     padding: const EdgeInsets.only(top: 16),
-                    child: Text(error, style: const TextStyle(color: Colors.red)),
+                    child: Text(error, style: const TextStyle(color: AppColors.error)),
                   );
                 }),
               ],

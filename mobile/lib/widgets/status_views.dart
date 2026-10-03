@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../core/tokens.dart';
+
 class LoadingView extends StatelessWidget {
   const LoadingView({super.key});
 
@@ -17,15 +19,15 @@ class ErrorView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(AppSpacing.xl),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.wifi_off, size: 48, color: Colors.grey),
-            const SizedBox(height: 12),
+            const Icon(Icons.wifi_off, size: 48, color: AppColors.textMuted),
+            const SizedBox(height: AppSpacing.md),
             Text(message, textAlign: TextAlign.center),
             if (onRetry != null) ...[
-              const SizedBox(height: 12),
+              const SizedBox(height: AppSpacing.md),
               ElevatedButton(onPressed: onRetry, child: const Text('Повторить')),
             ],
           ],
@@ -42,8 +44,8 @@ class OfflineBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      color: Colors.orange.shade700,
-      padding: const EdgeInsets.symmetric(vertical: 6),
+      color: AppColors.offline,
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm - 2),
       child: const Text(
         'Нет сети — показаны последние сохранённые данные',
         textAlign: TextAlign.center,

@@ -30,8 +30,8 @@ class BigButton extends StatelessWidget {
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: color,
-          foregroundColor: color != null ? BrandColors.black : Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          foregroundColor: color != null ? AppColors.black : Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.sm)),
         ),
       ),
     );

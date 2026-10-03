@@ -28,30 +28,30 @@ class SalesBarChart extends StatelessWidget {
           final heightFraction = maxValue == 0 ? 0.0 : entry.totalAmount / maxValue;
           return Expanded(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   if (entry.totalAmount > 0)
                     Text(
                       _compact(entry.totalAmount),
-                      style: numberStyle(fontSize: 10.5, color: Colors.black54),
+                      style: numberStyle(fontSize: 10.5, color: AppColors.textSecondary),
                     ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: AppSpacing.xs),
                   Container(
                     height: 6 + 84 * heightFraction,
                     decoration: BoxDecoration(
-                      color: isToday ? BrandColors.red : BrandColors.black.withValues(alpha: 0.75),
+                      color: isToday ? AppColors.red : AppColors.black.withValues(alpha: 0.75),
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: AppSpacing.sm),
                   Text(
                     intl.DateFormat.E('ru').format(entry.deliveryDate),
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: isToday ? FontWeight.w700 : FontWeight.w500,
-                      color: isToday ? BrandColors.red : Colors.black54,
+                      color: isToday ? AppColors.red : AppColors.textSecondary,
                     ),
                   ),
                 ],

@@ -47,9 +47,9 @@ class ManagerOrdersScreen extends StatelessWidget {
               return RefreshIndicator(
                 onRefresh: controller.reload,
                 child: ListView.separated(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(AppSpacing.lg),
                   itemCount: controller.orders.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 14),
+                  separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.md + 2),
                   itemBuilder: (context, index) {
                     final order = controller.orders[index];
                     return _OrderCard(
@@ -91,22 +91,22 @@ class _OrderCard extends StatelessWidget {
           Row(
             children: [
               ClientAvatar(name: clientName, size: 36),
-              const SizedBox(width: 10),
+              const SizedBox(width: AppSpacing.sm + 2),
               Expanded(
                 child: Text(
                   clientName,
                   style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
                 ),
               ),
-              Text('№${order.id}', style: numberStyle(fontSize: 14, color: Colors.black54)),
+              Text('№${order.id}', style: numberStyle(fontSize: 14, color: AppColors.textSecondary)),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: AppSpacing.sm),
           Row(
             children: [
               Text(
                 '${itemsCountRu(order.items.length)} · ',
-                style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
               ),
               Text(
                 '${order.totalAmount.toStringAsFixed(0)} сом',
@@ -114,7 +114,7 @@ class _OrderCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpacing.md),
           Row(
             children: [
               if (isUpdating)
@@ -141,12 +141,12 @@ class _OrderCard extends StatelessWidget {
               const Spacer(),
               IconButton(
                 tooltip: 'Печать накладной',
-                icon: const Icon(Icons.print, color: BrandColors.black),
+                icon: const Icon(Icons.print, color: AppColors.black),
                 onPressed: () => WaybillActions.print(order.id),
               ),
               IconButton(
                 tooltip: 'Отправить накладную',
-                icon: const Icon(Icons.share, color: BrandColors.black),
+                icon: const Icon(Icons.share, color: AppColors.black),
                 onPressed: () => WaybillActions.share(order.id),
               ),
             ],

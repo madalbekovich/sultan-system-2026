@@ -52,7 +52,7 @@ class OrderListScreen extends StatelessWidget {
                     final order = controller.orders[index];
                     final clientName = order.clientName ?? 'Клиент №${order.clientId}';
                     return ListTile(
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
                       leading: ClientAvatar(name: clientName),
                       title: Text(clientName,
                           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),

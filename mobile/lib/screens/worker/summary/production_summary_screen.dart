@@ -22,7 +22,7 @@ class ProductionSummaryScreen extends StatelessWidget {
     )..reload(silent: true);
 
     return Scaffold(
-      backgroundColor: BrandColors.cream,
+      backgroundColor: AppColors.cream,
       body: Column(
         children: [
           const AppHeader(subtitle: 'Сколько нужно взвесить сегодня'),
@@ -49,9 +49,9 @@ class ProductionSummaryScreen extends StatelessWidget {
               return RefreshIndicator(
                 onRefresh: controller.reload,
                 child: ListView.separated(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(AppSpacing.lg),
                   itemCount: summary.products.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 10),
+                  separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm + 2),
                   itemBuilder: (context, index) {
                     final entry = summary.products[index];
                     final (icon, color) = productVisual(entry.productName);
@@ -67,7 +67,7 @@ class ProductionSummaryScreen extends StatelessWidget {
                             ),
                             child: Icon(icon, color: color, size: 20),
                           ),
-                          const SizedBox(width: 14),
+                          const SizedBox(width: AppSpacing.md + 2),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -78,14 +78,14 @@ class ProductionSummaryScreen extends StatelessWidget {
                                 ),
                                 Text(
                                   clientsCountRu(entry.clientCount),
-                                  style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
                                 ),
                               ],
                             ),
                           ),
                           Text(
                             '${entry.totalPlannedQty} ${unitLabelRu(entry.unitType)}',
-                            style: numberStyle(fontSize: 21, color: BrandColors.redDark),
+                            style: numberStyle(fontSize: 21, color: AppColors.redDark),
                           ),
                         ],
                       ),
