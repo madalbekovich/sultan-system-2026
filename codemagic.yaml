@@ -1,0 +1,61 @@
+workflows:
+  ios-workflow:
+    name: iOS Workflow
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    integrations:
+      app_store_connect: codemagic_api_key
+    environment:
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.sultansystem.sultanSystem
+      vars:
+        BUNDLE_ID: "com.sultansystem.sultanSystem"
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+    scripts:
+      - name: Fetch signing files
+        script: |
+          app-store-connect fetch-signing-files "$BUNDLE_ID" --type IOS_APP_STORE --create
+      - name: Use system default keychain
+        script: keychain initialize
+      - name: Add certificates to keychain
+        script: keychain add-certificates
+      - name: Set up signing profile
+        script: |
+          cd mobile
+          xcode-project use-profiles
+      - name: Install Flutter dependencies
+        script: |
+          cd mobile
+          flutter packages pub get
+      - name: Install CocoaPods dependencies
+        script: |
+          cd mobile/ios
+          pod install
+      - name: Build ipa
+        script: |
+          cd mobile
+          flutter build ipa --release --export-options-plist=/Users/builder/export_options.plist
+    artifacts:
+      - mobile/build/ios/ipa/*.ipa
+      - mobile/build/ios/**/*.dSYM
+
+  android-workflow:
+    name: Android Workflow
+    max_build_duration: 30
+    instance_type: mac_mini_m2
+    environment:
+      flutter: stable
+    scripts:
+      - name: Install Flutter dependencies
+        script: |
+          cd mobile
+          flutter packages pub get
+      - name: Build apk
+        script: |
+          cd mobile
+          flutter build apk --release
+    artifacts:
+      - mobile/build/app/outputs/flutter-apk/*.apk
