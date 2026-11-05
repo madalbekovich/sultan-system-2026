@@ -59,6 +59,14 @@ class OrderItem {
       );
 }
 
+/// Day-level totals across a list of orders — the one place that sums
+/// amount/weight so screens never each write their own fold().
+extension OrderListTotals on List<Order> {
+  double get totalAmountSum => fold(0.0, (sum, o) => sum + o.totalAmount);
+  double get totalWeightGramsSum =>
+      fold(0.0, (sum, o) => sum + o.totalWeightGrams);
+}
+
 class Order {
   Order({
     required this.id,
@@ -66,8 +74,10 @@ class Order {
     required this.deliveryDate,
     required this.status,
     required this.totalAmount,
+    required this.totalWeightGrams,
     required this.items,
     this.clientName,
+    this.clientCode,
   });
 
   final int id;
@@ -75,8 +85,18 @@ class Order {
   final DateTime deliveryDate;
   final OrderStatus status;
   final double totalAmount;
+  final String? clientCode;
+
+  /// Computed once, backend-side (see services/orders.py::_item_weight_grams)
+  /// so the app never re-derives this from items — read it, don't recompute.
+  final double totalWeightGrams;
   final List<OrderItem> items;
   final String? clientName;
+
+  /// Sum of quantity across all items — actual qty once the shop has
+  /// weighed/counted it, falling back to the planned qty before that.
+  double get totalQty =>
+      items.fold(0.0, (sum, item) => sum + (item.actualQty ?? item.plannedQty));
 
   factory Order.fromJson(Map<String, dynamic> json) => Order(
         id: json['id'] as int,
@@ -84,9 +104,11 @@ class Order {
         deliveryDate: DateTime.parse(json['delivery_date'] as String),
         status: orderStatusFromJson(json['status'] as String),
         totalAmount: double.parse(json['total_amount'].toString()),
+        totalWeightGrams: double.parse((json['total_weight_grams'] ?? 0).toString()),
         items: (json['items'] as List<dynamic>? ?? [])
             .map((e) => OrderItem.fromJson(e as Map<String, dynamic>))
             .toList(),
         clientName: json['client_name'] as String?,
+        clientCode: json['client_code'] as String?,
       );
 }

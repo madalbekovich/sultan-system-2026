@@ -36,12 +36,12 @@ class _WorkerShellState extends State<WorkerShell> {
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.scale_outlined),
-            selectedIcon: Icon(Icons.scale, color: Colors.white),
+            selectedIcon: Icon(Icons.scale, color: AppColors.yellow),
             label: 'Сводка',
           ),
           NavigationDestination(
             icon: Icon(Icons.checklist_outlined),
-            selectedIcon: Icon(Icons.checklist, color: Colors.white),
+            selectedIcon: Icon(Icons.checklist, color: AppColors.yellow),
             label: 'Заказы',
           ),
         ],

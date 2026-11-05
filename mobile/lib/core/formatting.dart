@@ -48,6 +48,18 @@ String formatQty(double qty, UnitType unit) => '${_trimQty(qty)} ${unit.label}';
 /// API returns qty + a unit label separately.
 String formatQtyLabel(double qty, String unitLabel) => '${_trimQty(qty)} $unitLabel';
 
+/// "12,4 кг" / "1 284,6 кг" — grams in, kilograms out, comma decimal,
+/// grouped thousands. Single formatter so every screen that shows a
+/// weight total reads it the same way.
+String formatWeightKg(num grams) {
+  final kg = grams / 1000;
+  final wholePart = kg.truncate().abs();
+  final decimal = ((kg.abs() - wholePart) * 10).round();
+  final grouped = _groupThousands(wholePart.toString());
+  final sign = kg < 0 ? '-' : '';
+  return '$sign$grouped,$decimal$_nbsp кг';
+}
+
 /// "168 сом/шт"
 String formatPricePerUnit(double price, UnitType unit) =>
     '${_trimQty(price)} сом/${unit.label}';

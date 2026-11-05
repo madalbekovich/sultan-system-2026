@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 
 import '../../../core/formatting.dart';
 import '../../../core/get_utils.dart';
+import '../../../core/refresh_status.dart';
 import '../../../core/ru_text.dart';
 import '../../../core/theme.dart';
 import '../../../data/orders_repository.dart';
@@ -73,8 +74,15 @@ class ManagerDashboardScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (controller.isOffline.value)
-                      const Padding(padding: EdgeInsets.only(bottom: AppSpacing.md), child: OfflineBanner()),
+                    if (controller.dataStatus.value != DataStatus.ok)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                        child: StaleDataBanner(
+                          status: controller.dataStatus.value,
+                          lastUpdated: controller.lastUpdated.value,
+                          onRetry: controller.reload,
+                        ),
+                      ),
 
                     // KPI grid
                     Row(

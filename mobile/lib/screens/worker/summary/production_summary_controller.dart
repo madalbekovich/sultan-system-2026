@@ -4,18 +4,19 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/config.dart';
+import '../../../core/refresh_status.dart';
+import '../../../core/time.dart';
 import '../../../data/orders_repository.dart';
 import '../../../models/orders_summary.dart';
 
-class ProductionSummaryController extends GetxController {
+class ProductionSummaryController extends GetxController with RefreshStatusMixin {
   ProductionSummaryController(this._repository);
 
   final OrdersRepository _repository;
 
-  final selectedDate = DateTime.now().obs;
+  final selectedDate = todayBishkek().obs;
   final summary = Rxn<OrdersSummary>();
   final isLoading = true.obs;
-  final isOffline = false.obs;
 
   Timer? _pollTimer;
 
@@ -27,11 +28,13 @@ class ProductionSummaryController extends GetxController {
     _loadFromCache();
     reload();
     _pollTimer = Timer.periodic(AppConfig.summaryPollInterval, (_) => reload(silent: true));
+    watchConnectivity(reload);
   }
 
   @override
   void onClose() {
     _pollTimer?.cancel();
+    disposeRefreshStatus();
     super.onClose();
   }
 
@@ -48,14 +51,10 @@ class ProductionSummaryController extends GetxController {
 
   Future<void> reload({bool silent = false}) async {
     if (!silent) isLoading.value = true;
-    try {
+    await runGuarded(() async {
       final result = await _repository.fetchSummary(_dateKey);
       summary.value = result;
-      isOffline.value = false;
-    } catch (_) {
-      isOffline.value = true;
-    } finally {
-      isLoading.value = false;
-    }
+    });
+    isLoading.value = false;
   }
 }

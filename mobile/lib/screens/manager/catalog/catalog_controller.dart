@@ -1,11 +1,13 @@
 import 'package:get/get.dart';
 
 import '../../../core/error_feedback.dart';
+import '../../../core/refresh_status.dart';
 import '../../../data/products_repository.dart';
 import '../../../models/category.dart';
+import '../../../models/price_sheet_row.dart';
 import '../../../models/product.dart';
 
-class CatalogController extends GetxController {
+class CatalogController extends GetxController with RefreshStatusMixin {
   CatalogController(this._repository);
 
   final ProductsRepository _repository;
@@ -13,13 +15,20 @@ class CatalogController extends GetxController {
   final products = <Product>[].obs;
   final categories = <Category>[].obs;
   final isLoading = true.obs;
-  final isOffline = false.obs;
   final searchQuery = ''.obs;
+  final priceCoverage = <int, PriceCoverage>{}.obs;
+  final showOnlyMissingPrice = false.obs;
 
   List<Product> get filteredProducts {
     final query = searchQuery.value.trim().toLowerCase();
-    if (query.isEmpty) return products;
-    return products.where((p) => p.name.toLowerCase().contains(query)).toList();
+    List<Product> result = products;
+    if (query.isNotEmpty) {
+      result = result.where((p) => p.name.toLowerCase().contains(query)).toList();
+    }
+    if (showOnlyMissingPrice.value) {
+      result = result.where((p) => (priceCoverage[p.id]?.clientsMissing ?? 0) > 0).toList();
+    }
+    return result;
   }
 
   @override
@@ -29,22 +38,29 @@ class CatalogController extends GetxController {
     categories.assignAll(_repository.cachedCategories());
     isLoading.value = products.isEmpty;
     reload();
+    watchConnectivity(reload);
+  }
+
+  @override
+  void onClose() {
+    disposeRefreshStatus();
+    super.onClose();
   }
 
   Future<void> reload() async {
-    try {
+    await runGuarded(() async {
       final results = await Future.wait([
         _repository.fetchProducts(activeOnly: false),
         _repository.fetchCategories(),
+        _repository.fetchPriceCoverage(),
       ]);
       products.assignAll(results[0] as List<Product>);
       categories.assignAll(results[1] as List<Category>);
-      isOffline.value = false;
-    } catch (_) {
-      isOffline.value = true;
-    } finally {
-      isLoading.value = false;
-    }
+      priceCoverage.assignAll({
+        for (final c in results[2] as List<PriceCoverage>) c.productId: c,
+      });
+    });
+    isLoading.value = false;
   }
 
   String categoryName(int categoryId) {

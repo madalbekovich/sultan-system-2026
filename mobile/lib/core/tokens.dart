@@ -6,15 +6,35 @@ import 'package:flutter/material.dart';
 /// literal or a BoxShadow — reference a token here instead, so a palette
 /// or rhythm change is a one-file edit.
 abstract class AppColors {
-  // Brand
-  static const red = Color(0xFFD42A1F);
-  static const redDark = Color(0xFFA81D14);
-  static const yellow = Color(0xFFE8A935);
-  static const black = Color(0xFF1C1C1E);
+  // Brand — sampled directly from assets/images/logo.jpg (yellow/red/black)
+  // and the sausage label in assets/images/hero_meat.jpg (cream/gold), not
+  // picked by eye. Every other brand-ish color below is an alias onto
+  // these four, so a palette change is a one-line edit here.
+  static const brandYellow = Color(0xFFFBDF1B);
+  static const brandRed = Color(0xFFD82F21);
+  static const brandBlack = Color(0xFF191B1A);
+  static const brandCream = Color(0xFFF3DAA3);
+
+  /// Darker red for text/pressed states — brandRed reads weak as body text
+  /// or a pressed-state fill at full saturation.
+  static const brandRedDark = Color(0xFFA3241A);
+
+  /// Pale washes for badge/pill backgrounds — never fill a large area with
+  /// these, they're a tint under an icon or a status pill, not a surface.
+  static const brandYellowSoft = Color(0x26FBDF1B); // ~15% alpha
+  static const brandRedSoft = Color(0x1AD82F21); // ~10% alpha
+
+  // Existing call sites across the app reference these — kept as aliases
+  // onto the brand colors above instead of renaming every usage.
+  static const red = brandRed;
+  static const redDark = brandRedDark;
+  static const yellow = brandYellow;
+  static const black = brandBlack;
   static const graphite = Color(0xFF2B2B2E);
   static const cream = Color(0xFFF7F4EE);
 
-  // Neutrals — one border tone instead of four near-identical greys.
+  // Neutrals — warm (beige-grey, not blue-grey) so they sit with the cream
+  // background and brand black instead of reading as a generic Material grey.
   static const border = Color(0xFFE2DCCB);
   static const textPrimary = black;
   static const textSecondary = Color(0xFF6F6A5E);
@@ -22,8 +42,10 @@ abstract class AppColors {
 
   // Order status — derived from the brand palette (muted/ochre/green/blue
   // read as "stage of the day" at a glance) rather than a separate set.
-  static const statusPending = Color(0xFF6B6B6B);
-  static const statusInAssembly = Color(0xFFA06A17);
+  // "Ожидает" uses the warm neutral grey; "В работе" is the brand yellow
+  // (paired with black text/icons wherever it's a fill, never yellow-on-cream).
+  static const statusPending = Color(0xFF8F8878);
+  static const statusInAssembly = brandYellow;
   static const statusReady = Color(0xFF2E7D32);
   static const statusDispatched = Color(0xFF1565C0);
 
@@ -42,7 +64,12 @@ abstract class AppColors {
 
   static const error = Color(0xFFC62828);
   static const success = statusReady;
-  static const offline = Color(0xFFB8631A);
+
+  // Compact "showing cached data" banner (offline or a slow/erroring
+  // backend) — deliberately warm-neutral, not red: this is a transparency
+  // note, not an alarm.
+  static const staleBanner = Color(0xFFEDE6D3);
+  static const staleBannerText = textSecondary;
 }
 
 abstract class AppSpacing {

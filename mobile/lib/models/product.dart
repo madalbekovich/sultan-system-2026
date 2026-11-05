@@ -17,6 +17,7 @@ class Product {
     required this.unitType,
     required this.pricePerUnit,
     required this.isActive,
+    this.weightGrams,
   });
 
   final int id;
@@ -26,6 +27,11 @@ class Product {
   final double pricePerUnit;
   final bool isActive;
 
+  /// Net weight of one unit, in grams. Null until filled in — older/new
+  /// catalog entries without a weight just don't contribute to weight
+  /// totals.
+  final int? weightGrams;
+
   factory Product.fromJson(Map<String, dynamic> json) => Product(
         id: json['id'] as int,
         categoryId: json['category_id'] as int,
@@ -33,6 +39,7 @@ class Product {
         unitType: unitTypeFromJson(json['unit_type'] as String),
         pricePerUnit: double.parse(json['price_per_unit'].toString()),
         isActive: json['is_active'] as bool,
+        weightGrams: json['weight_grams'] as int?,
       );
 
   Map<String, dynamic> toCreateJson() => {
@@ -41,5 +48,6 @@ class Product {
         'unit_type': unitTypeToJson(unitType),
         'price_per_unit': pricePerUnit,
         'is_active': isActive,
+        'weight_grams': weightGrams,
       };
 }

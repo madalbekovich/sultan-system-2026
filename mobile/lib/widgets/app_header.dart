@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' as intl;
 
 import '../core/theme.dart';
+import '../core/time.dart';
 import '../core/tokens.dart';
 import 'brand_logo.dart';
 
 String greetingForNow() {
-  final hour = DateTime.now().hour;
+  final hour = nowBishkek().hour;
   if (hour < 5) return 'Доброй ночи';
   if (hour < 12) return 'Доброе утро';
   if (hour < 18) return 'Добрый день';
@@ -66,4 +67,4 @@ class AppHeader extends StatelessWidget {
   }
 }
 
-String formattedToday() => intl.DateFormat('EEEE, d MMMM', 'ru').format(DateTime.now());
+String formattedToday() => intl.DateFormat('EEEE, d MMMM', 'ru').format(nowBishkek());

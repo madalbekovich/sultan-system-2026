@@ -4,15 +4,24 @@ import 'package:get/get.dart' hide Response, FormData, MultipartFile;
 
 import '../routes/app_routes.dart';
 import 'config.dart';
+import 'connectivity_service.dart';
 import 'storage.dart';
+
+/// Which "stale data" message a failed request should surface. A failed
+/// request alone can't tell these apart (a timeout looks the same whether
+/// the phone has no signal or the backend is just slow) — that's why this
+/// combines the Dio error type with the device's actual radio status from
+/// [ConnectivityService] rather than guessing from the exception alone.
+enum ApiFailureKind { network, server }
 
 /// Thrown for any non-2xx API response; carries the server's detail message
 /// so screens can show something more useful than "DioException".
 class ApiException implements Exception {
-  ApiException(this.statusCode, this.message);
+  ApiException(this.statusCode, this.message, this.kind);
 
   final int? statusCode;
   final String message;
+  final ApiFailureKind kind;
 
   @override
   String toString() => message;
@@ -52,7 +61,24 @@ class ApiClient {
     if (statusCode == 401) {
       _handleSessionExpired();
     }
-    return ApiException(statusCode, detail);
+    return ApiException(statusCode, detail, _classify(error));
+  }
+
+  // A response (even a 4xx/5xx one) proves the device reached the server,
+  // so that's always a server-side problem. Otherwise trust the device's
+  // actual radio status over the exception type — a connectionError can
+  // also mean a captive portal or a dead DNS entry while Wi-Fi still
+  // reads "connected", and a timeout can just as easily be a slow backend
+  // as no signal at all.
+  ApiFailureKind _classify(DioException error) {
+    if (error.response != null) return ApiFailureKind.server;
+    final online = Get.isRegistered<ConnectivityService>()
+        ? Get.find<ConnectivityService>().isOnline.value
+        : true;
+    if (!online) return ApiFailureKind.network;
+    return error.type == DioExceptionType.connectionError
+        ? ApiFailureKind.network
+        : ApiFailureKind.server;
   }
 
   // A 401 used to fail every auth-required action (status changes, weight
@@ -104,6 +130,14 @@ class ApiClient {
   Future<Response<T>> patch<T>(String path, {Object? data}) async {
     try {
       return await dio.patch<T>(path, data: data);
+    } on DioException catch (e) {
+      throw _toApiException(e);
+    }
+  }
+
+  Future<Response<T>> delete<T>(String path) async {
+    try {
+      return await dio.delete<T>(path);
     } on DioException catch (e) {
       throw _toApiException(e);
     }

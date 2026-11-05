@@ -1,10 +1,8 @@
 from aiogram.fsm.state import State, StatesGroup
 
 
-class Registration(StatesGroup):
-    entering_name = State()
-    entering_phone = State()
-    entering_address = State()
+class CodeEntry(StatesGroup):
+    entering_code = State()
 
 
 class OrderFlow(StatesGroup):

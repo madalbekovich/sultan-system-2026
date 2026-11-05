@@ -9,7 +9,7 @@ from aiogram.types import BotCommand, ErrorEvent
 
 from bot.api_client import api_client
 from bot.config import settings
-from bot.handlers import cart, catalog, myorders, registration, start
+from bot.handlers import cart, catalog, code_entry, myorders, start
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +23,7 @@ async def main() -> None:
     )
     dp = Dispatcher(storage=MemoryStorage())
     dp.include_router(start.router)
-    dp.include_router(registration.router)
+    dp.include_router(code_entry.router)
     dp.include_router(myorders.router)
     dp.include_router(catalog.router)
     dp.include_router(cart.router)

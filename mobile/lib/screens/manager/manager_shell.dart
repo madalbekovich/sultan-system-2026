@@ -43,23 +43,23 @@ class _ManagerShellState extends State<ManagerShell> {
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.insights_outlined),
-            selectedIcon: Icon(Icons.insights, color: Colors.white),
+            selectedIcon: Icon(Icons.insights, color: AppColors.yellow),
             label: 'Дашборд',
           ),
           NavigationDestination(
             icon: Icon(Icons.receipt_long_outlined),
-            selectedIcon: Icon(Icons.receipt_long, color: Colors.white),
+            selectedIcon: Icon(Icons.receipt_long, color: AppColors.yellow),
             label: 'Заказы',
           ),
           NavigationDestination(
             icon: Icon(Icons.inventory_2_outlined),
-            selectedIcon: Icon(Icons.inventory_2, color: Colors.white),
+            selectedIcon: Icon(Icons.inventory_2, color: AppColors.yellow),
             label: 'Каталог',
           ),
           NavigationDestination(
-            icon: Icon(Icons.people_outline),
-            selectedIcon: Icon(Icons.people, color: Colors.white),
-            label: 'Клиенты',
+            icon: Icon(Icons.store_outlined),
+            selectedIcon: Icon(Icons.store, color: AppColors.yellow),
+            label: 'Склады',
           ),
         ],
       ),

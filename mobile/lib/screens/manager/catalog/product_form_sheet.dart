@@ -1,21 +1,31 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/tokens.dart';
+import '../../../core/theme.dart';
+import '../../../models/category.dart';
 import '../../../models/product.dart';
-import 'catalog_controller.dart';
 
-/// Pass [existing] to edit a product in place; omit it to create a new one.
+/// Pass [existing] to edit a product in place; omit it to create a new
+/// one. Decoupled from any specific controller — [categories] and the
+/// create/edit callbacks are passed in, so this one form works both from
+/// the catalog screen and from a warehouse's price-sheet screen (adding a
+/// product there adds it to the one shared catalog, same as everywhere
+/// else — there's no per-warehouse product list, only per-warehouse
+/// prices).
 Future<void> showProductFormSheet(
-  BuildContext context,
-  CatalogController controller, {
+  BuildContext context, {
+  required List<Category> categories,
+  required Future<bool> Function(Product product) onCreate,
+  required Future<bool> Function(Product existing, Map<String, dynamic> changes) onEdit,
   Product? existing,
 }) {
   final isEditing = existing != null;
   final nameController = TextEditingController(text: existing?.name ?? '');
   final priceController =
       TextEditingController(text: existing != null ? existing.pricePerUnit.toString() : '');
+  final weightController = TextEditingController(
+      text: existing?.weightGrams != null ? existing!.weightGrams.toString() : '');
   int? categoryId =
-      existing?.categoryId ?? (controller.categories.isNotEmpty ? controller.categories.first.id : null);
+      existing?.categoryId ?? (categories.isNotEmpty ? categories.first.id : null);
   UnitType unitType = existing?.unitType ?? UnitType.kg;
 
   return showModalBottomSheet(
@@ -47,7 +57,7 @@ Future<void> showProductFormSheet(
               DropdownButtonFormField<int>(
                 initialValue: categoryId,
                 decoration: const InputDecoration(labelText: 'Категория'),
-                items: controller.categories
+                items: categories
                     .map((c) => DropdownMenuItem(value: c.id, child: Text(c.name)))
                     .toList(),
                 onChanged: (value) => setState(() => categoryId = value),
@@ -73,6 +83,14 @@ Future<void> showProductFormSheet(
                   ),
                 ],
               ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: weightController,
+                decoration: const InputDecoration(
+                  labelText: 'Вес единицы, г (необязательно)',
+                ),
+                keyboardType: TextInputType.number,
+              ),
               const SizedBox(height: 20),
               SizedBox(
                 width: double.infinity,
@@ -83,14 +101,16 @@ Future<void> showProductFormSheet(
                     if (nameController.text.trim().isEmpty || price == null || categoryId == null) {
                       return;
                     }
+                    final weightGrams = int.tryParse(weightController.text.trim());
                     final success = isEditing
-                        ? await controller.editProduct(existing, {
+                        ? await onEdit(existing, {
                             'name': nameController.text.trim(),
                             'category_id': categoryId,
                             'price_per_unit': price,
                             'unit_type': unitType == UnitType.pcs ? 'PCS' : 'KG',
+                            'weight_grams': weightGrams,
                           })
-                        : await controller.createProduct(
+                        : await onCreate(
                             Product(
                               id: 0,
                               categoryId: categoryId!,
@@ -98,6 +118,7 @@ Future<void> showProductFormSheet(
                               unitType: unitType,
                               pricePerUnit: price,
                               isActive: true,
+                              weightGrams: weightGrams,
                             ),
                           );
                     if (success && context.mounted) Navigator.of(context).pop();

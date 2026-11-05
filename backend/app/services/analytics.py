@@ -1,21 +1,24 @@
-from datetime import date, timedelta
+from datetime import timedelta
 from decimal import Decimal
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from app.core.tz import today_bishkek
+from app.models.client import Client
 from app.models.order import Order
 from app.models.order_item import OrderItem
 from app.models.product import Product
 from app.schemas.order import DailySalesEntry, DashboardAnalytics, ProductSummaryEntry
 from app.services.orders import to_order_read
+from app.services.weight import weight_grams_for
 
 
 async def get_dashboard_analytics(
     db: AsyncSession, days: int = 7, recent_limit: int = 6
 ) -> DashboardAnalytics:
-    today = date.today()
+    today = today_bishkek()
     start_date = today - timedelta(days=days - 1)
 
     sales_stmt = (
@@ -43,13 +46,14 @@ async def get_dashboard_analytics(
             Product.id,
             Product.name,
             Product.unit_type,
+            Product.weight_grams,
             func.sum(OrderItem.planned_qty).label("total_planned_qty"),
             func.count(func.distinct(Order.client_id)).label("client_count"),
         )
         .join(OrderItem, OrderItem.product_id == Product.id)
         .join(Order, Order.id == OrderItem.order_id)
         .where(Order.delivery_date >= start_date, Order.delivery_date <= today)
-        .group_by(Product.id, Product.name, Product.unit_type)
+        .group_by(Product.id, Product.name, Product.unit_type, Product.weight_grams)
         .order_by(func.sum(OrderItem.planned_qty).desc())
         .limit(5)
     )
@@ -60,6 +64,9 @@ async def get_dashboard_analytics(
             product_name=row.name,
             unit_type=row.unit_type.value if hasattr(row.unit_type, "value") else row.unit_type,
             total_planned_qty=Decimal(row.total_planned_qty or 0),
+            total_weight_grams=weight_grams_for(
+                row.unit_type, row.weight_grams, Decimal(row.total_planned_qty or 0)
+            ),
             client_count=row.client_count,
         )
         for row in top_rows
@@ -69,7 +76,7 @@ async def get_dashboard_analytics(
         select(Order)
         .options(
             selectinload(Order.items).selectinload(OrderItem.product),
-            selectinload(Order.client),
+            selectinload(Order.client).selectinload(Client.region),
         )
         .order_by(Order.created_at.desc())
         .limit(recent_limit)

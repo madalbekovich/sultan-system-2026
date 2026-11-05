@@ -171,7 +171,20 @@ class _WeighingRowState extends State<_WeighingRow> {
           ],
         ),
         const SizedBox(height: AppSpacing.xs),
-        Text('План: ${item.plannedQty}', style: const TextStyle(color: AppColors.textSecondary)),
+        Row(
+          children: [
+            Text('План: ${formatQtyLabel(item.plannedQty, 'шт')}',
+                style: const TextStyle(color: AppColors.textSecondary)),
+            if (item.actualQty != null) ...[
+              const SizedBox(width: AppSpacing.md),
+              Text(
+                'Поступило: ${formatQtyLabel(item.actualQty!, 'шт')}',
+                style: const TextStyle(
+                    color: AppColors.statusReady, fontWeight: FontWeight.w700),
+              ),
+            ],
+          ],
+        ),
         const SizedBox(height: AppSpacing.sm),
         Row(
           children: [

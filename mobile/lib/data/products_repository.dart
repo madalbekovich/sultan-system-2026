@@ -3,6 +3,7 @@ import 'dart:convert';
 import '../core/api_client.dart';
 import '../core/storage.dart';
 import '../models/category.dart';
+import '../models/price_sheet_row.dart';
 import '../models/product.dart';
 
 class ProductsRepository {
@@ -63,5 +64,10 @@ class ProductsRepository {
       data: changes,
     );
     return Product.fromJson(response.data!);
+  }
+
+  Future<List<PriceCoverage>> fetchPriceCoverage() async {
+    final response = await _api.get<List<dynamic>>('/products/price-coverage');
+    return response.data!.map((e) => PriceCoverage.fromJson(e as Map<String, dynamic>)).toList();
   }
 }

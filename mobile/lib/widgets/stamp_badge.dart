@@ -13,16 +13,20 @@ class StampBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Brand rule: yellow never serves as text/icon color — on a yellow fill
+    // the ink is always black, so "В работе" gets a solid yellow pill with
+    // black text instead of the usual pale-wash + colored-text pattern.
+    final isYellow = color == AppColors.brandYellow;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 5),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
+        color: isYellow ? color : color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(AppRadius.sm),
       ),
       child: Text(
         label,
         style: TextStyle(
-          color: color,
+          color: isYellow ? AppColors.brandBlack : color,
           fontWeight: FontWeight.w700,
           fontSize: 12.5,
         ),

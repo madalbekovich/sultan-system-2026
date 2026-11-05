@@ -23,7 +23,8 @@ TextStyle numberStyle({
 }
 
 /// Section heading — bold, slightly tracked, but not full-caps-shouty.
-TextStyle headingStyle({double fontSize = 15, Color color = AppColors.textPrimary}) {
+TextStyle headingStyle(
+    {double fontSize = 15, Color color = AppColors.textPrimary}) {
   return TextStyle(
     fontFamily: 'Onest',
     fontSize: fontSize,
@@ -135,6 +136,9 @@ ThemeData buildAppTheme() {
       foregroundColor: Colors.white,
       elevation: 0,
       centerTitle: false,
+      // Material 3's default toolbar height (64) is taller than this app's
+      // compact look calls for — pin it back to the Material 2 height.
+      toolbarHeight: 56,
       systemOverlayStyle: SystemUiOverlayStyle.light,
       titleTextStyle: TextStyle(
         fontFamily: headingFontFamily,
@@ -157,7 +161,8 @@ ThemeData buildAppTheme() {
           fontWeight: FontWeight.w700,
           fontSize: 15,
         ),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.sm)),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.sm)),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
@@ -171,19 +176,22 @@ ThemeData buildAppTheme() {
           fontWeight: FontWeight.w700,
           fontSize: 15,
         ),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.sm)),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.sm)),
       ),
     ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
         foregroundColor: AppColors.redDark,
-        textStyle: const TextStyle(fontFamily: bodyFontFamily, fontWeight: FontWeight.w700),
+        textStyle: const TextStyle(
+            fontFamily: bodyFontFamily, fontWeight: FontWeight.w700),
       ),
     ),
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
-      backgroundColor: AppColors.black,
+      backgroundColor: AppColors.red,
       foregroundColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(AppRadius.lg))),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(AppRadius.lg))),
     ),
     cardTheme: CardThemeData(
       elevation: 0,
@@ -195,7 +203,8 @@ ThemeData buildAppTheme() {
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: Colors.white,
-      labelStyle: const TextStyle(fontFamily: bodyFontFamily, color: AppColors.textSecondary),
+      labelStyle: const TextStyle(
+          fontFamily: bodyFontFamily, color: AppColors.textSecondary),
       errorStyle: const TextStyle(
         fontFamily: bodyFontFamily,
         color: AppColors.error,
@@ -212,7 +221,8 @@ ThemeData buildAppTheme() {
       ),
       disabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(AppRadius.sm),
-        borderSide: BorderSide(color: AppColors.border.withValues(alpha: 0.5), width: 1),
+        borderSide: BorderSide(
+            color: AppColors.border.withValues(alpha: 0.5), width: 1),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(AppRadius.sm),
@@ -229,11 +239,13 @@ ThemeData buildAppTheme() {
     ),
     switchTheme: SwitchThemeData(
       thumbColor: WidgetStateProperty.resolveWith(
-        (states) => states.contains(WidgetState.selected) ? Colors.white : Colors.white,
+        (states) => states.contains(WidgetState.selected)
+            ? AppColors.black
+            : Colors.white,
       ),
       trackColor: WidgetStateProperty.resolveWith(
         (states) => states.contains(WidgetState.selected)
-            ? AppColors.black
+            ? AppColors.yellow
             : AppColors.textMuted.withValues(alpha: 0.4),
       ),
       trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),

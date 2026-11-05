@@ -34,7 +34,10 @@ async def back_to_categories(callback: CallbackQuery, state: FSMContext) -> None
 @router.callback_query(lambda c: c.data and c.data.startswith("cat:"))
 async def show_products(callback: CallbackQuery, state: FSMContext) -> None:
     category_id = int(callback.data.split(":", 1)[1])
-    products = await api_client.list_products(category_id=category_id)
+    data = await state.get_data()
+    products = await api_client.list_products(
+        category_id=category_id, client_id=data.get("client_id")
+    )
     await callback.answer()
     if not products:
         await callback.message.answer("В этой категории пока нет товаров.")
@@ -53,7 +56,9 @@ async def choose_product(callback: CallbackQuery, state: FSMContext) -> None:
         await callback.answer()
         await callback.message.answer(_SESSION_LOST_TEXT)
         return
-    products = await api_client.list_products(category_id=category_id)
+    products = await api_client.list_products(
+        category_id=category_id, client_id=data.get("client_id")
+    )
     product = next((p for p in products if p.id == product_id), None)
     if product is None:
         await callback.answer("Товар больше недоступен.", show_alert=True)
@@ -66,6 +71,7 @@ async def choose_product(callback: CallbackQuery, state: FSMContext) -> None:
             "name": product.name,
             "unit_type": product.unit_type,
             "price_per_unit": str(product.price_per_unit),
+            "weight_grams": str(product.weight_grams) if product.weight_grams is not None else None,
         }
     )
     await state.set_state(OrderFlow.entering_qty)

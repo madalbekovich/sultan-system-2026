@@ -23,6 +23,10 @@ class Product(SQLModel, table=True):
     unit_type: UnitType = Field(default=UnitType.KG)
     price_per_unit: Decimal = Field(max_digits=12, decimal_places=2)
     is_active: bool = Field(default=True, index=True)
+    # Net weight of a single unit, in grams — used to compute order/day
+    # total weight. Nullable: older/unfilled products have no weight yet,
+    # and such items are simply excluded from weight totals.
+    weight_grams: Optional[int] = Field(default=None)
 
     category: "Category" = Relationship(back_populates="products")
     order_items: list["OrderItem"] = Relationship(back_populates="product")

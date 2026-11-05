@@ -24,6 +24,7 @@ class Product:
     name: str
     unit_type: str
     price_per_unit: Decimal
+    weight_grams: Decimal | None = None
 
 
 @dataclass
@@ -35,13 +36,10 @@ class OrderItemIn:
 @dataclass
 class ClientProfile:
     id: int
+    client_code: str
     name: str
     phone: str | None
     address: str | None
-
-    @property
-    def is_complete(self) -> bool:
-        return bool(self.phone) and bool(self.address)
 
 
 @dataclass
@@ -54,12 +52,22 @@ class OrderSummaryItem:
 
 
 class ApiError(RuntimeError):
-    pass
+    def __init__(self, status_code: int, detail: str) -> None:
+        super().__init__(f"{status_code}: {detail}")
+        self.status_code = status_code
+        self.detail = detail
 
 
 class ApiClient:
     def __init__(self) -> None:
-        self._client = httpx.AsyncClient(base_url=settings.API_BASE_URL, timeout=10.0)
+        # X-Bot-Key is what lets the bot call these endpoints at all — the
+        # backend rejects every one of them without it (or a manager JWT,
+        # which the bot never has). See backend app/api/deps.py.
+        self._client = httpx.AsyncClient(
+            base_url=settings.API_BASE_URL,
+            timeout=10.0,
+            headers={"X-Bot-Key": settings.BOT_API_KEY},
+        )
 
     async def close(self) -> None:
         await self._client.aclose()
@@ -72,15 +80,25 @@ class ApiClient:
     async def _post(self, path: str, **kwargs) -> httpx.Response:
         response = await self._client.post(path, **kwargs)
         if response.status_code >= 400:
-            raise ApiError(f"{response.status_code}: {response.text}")
+            detail = response.text
+            try:
+                detail = response.json().get("detail", detail)
+            except ValueError:
+                pass
+            raise ApiError(response.status_code, detail)
         return response
 
     async def list_categories(self) -> list[Category]:
         response = await self._get("/categories/")
         return [Category(**item) for item in response.json()]
 
-    async def list_products(self, category_id: int) -> list[Product]:
-        response = await self._get("/products/", params={"category_id": category_id})
+    async def list_products(
+        self, category_id: int, client_id: int | None = None
+    ) -> list[Product]:
+        params = {"category_id": category_id}
+        if client_id is not None:
+            params["client_id"] = client_id
+        response = await self._get("/products/", params=params)
         return [
             Product(
                 id=item["id"],
@@ -88,24 +106,12 @@ class ApiClient:
                 name=item["name"],
                 unit_type=item["unit_type"],
                 price_per_unit=Decimal(str(item["price_per_unit"])),
+                weight_grams=Decimal(str(item["weight_grams"]))
+                if item.get("weight_grams") is not None
+                else None,
             )
             for item in response.json()
         ]
-
-    async def register_client(
-        self,
-        tg_user_id: int,
-        name: str,
-        phone: str | None = None,
-        address: str | None = None,
-    ) -> int:
-        payload = {"tg_user_id": tg_user_id, "name": name}
-        if phone is not None:
-            payload["phone"] = phone
-        if address is not None:
-            payload["address"] = address
-        response = await self._post("/clients/register", json=payload)
-        return response.json()["id"]
 
     async def get_client_id_by_tg(self, tg_user_id: int) -> int | None:
         profile = await self.get_client_profile(tg_user_id)
@@ -118,7 +124,26 @@ class ApiClient:
         response.raise_for_status()
         data = response.json()
         return ClientProfile(
-            id=data["id"], name=data["name"], phone=data.get("phone"), address=data.get("address")
+            id=data["id"],
+            client_code=data["client_code"],
+            name=data["name"],
+            phone=data.get("phone"),
+            address=data.get("address"),
+        )
+
+    async def bind_client(self, code: str, tg_user_id: int) -> ClientProfile:
+        """The one "enter your warehouse code" step that replaces
+        self-registration entirely. Raises ApiError(404) for an unknown
+        code, ApiError(409) if it's already bound to a different Telegram
+        account."""
+        response = await self._post("/clients/bind", json={"code": code, "tg_user_id": tg_user_id})
+        data = response.json()
+        return ClientProfile(
+            id=data["id"],
+            client_code=data["client_code"],
+            name=data["name"],
+            phone=data.get("phone"),
+            address=data.get("address"),
         )
 
     async def list_orders_for_client(self, client_id: int) -> list[OrderSummaryItem]:

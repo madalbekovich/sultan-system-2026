@@ -17,31 +17,48 @@ class StaggeredFadeIn extends StatefulWidget {
 }
 
 /// Like [IndexedStack], but crossfades between children on index change
-/// instead of swapping instantly — every child stays mounted (state,
-/// scroll position, in-flight loads all survive a tab switch) since only
-/// opacity/hit-testing changes, not the widget tree.
-class FadeIndexedStack extends StatelessWidget {
+/// instead of swapping instantly — every *visited* child stays mounted
+/// (state, scroll position, in-flight loads all survive a tab switch)
+/// since only opacity/hit-testing changes, not the widget tree. A tab's
+/// child isn't built at all until its index is first selected, so opening
+/// a shell with several tabs doesn't pay the build cost of every one of
+/// them up front — only the active tab builds on the first frame.
+class FadeIndexedStack extends StatefulWidget {
   const FadeIndexedStack({super.key, required this.index, required this.children});
 
   final int index;
   final List<Widget> children;
 
   @override
+  State<FadeIndexedStack> createState() => _FadeIndexedStackState();
+}
+
+class _FadeIndexedStackState extends State<FadeIndexedStack> {
+  late final Set<int> _builtIndices = {widget.index};
+
+  @override
+  void didUpdateWidget(FadeIndexedStack oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _builtIndices.add(widget.index);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        for (var i = 0; i < children.length; i++)
-          Positioned.fill(
-            child: IgnorePointer(
-              ignoring: index != i,
-              child: AnimatedOpacity(
-                opacity: index == i ? 1 : 0,
-                duration: AppDurations.fast,
-                curve: AppCurves.standard,
-                child: children[i],
+        for (var i = 0; i < widget.children.length; i++)
+          if (_builtIndices.contains(i))
+            Positioned.fill(
+              child: IgnorePointer(
+                ignoring: widget.index != i,
+                child: AnimatedOpacity(
+                  opacity: widget.index == i ? 1 : 0,
+                  duration: AppDurations.fast,
+                  curve: AppCurves.standard,
+                  child: widget.children[i],
+                ),
               ),
             ),
-          ),
       ],
     );
   }

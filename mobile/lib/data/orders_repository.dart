@@ -81,6 +81,13 @@ class OrdersRepository {
     return Order.fromJson(response.data!);
   }
 
+  /// Permanent — removes the order and its items from the database
+  /// entirely. Does not update any cached day's order list itself;
+  /// callers remove it from their own in-memory list on success.
+  Future<void> deleteOrder(int orderId) async {
+    await _api.delete<void>('/orders/$orderId');
+  }
+
   Future<Order> updateOrderStatus(int orderId, OrderStatus status) async {
     final response = await _api.patch<Map<String, dynamic>>(
       '/orders/$orderId/status',

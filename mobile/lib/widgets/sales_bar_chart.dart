@@ -3,6 +3,7 @@ import 'package:intl/intl.dart' as intl;
 
 import '../core/formatting.dart';
 import '../core/theme.dart';
+import '../core/time.dart';
 import '../models/dashboard_analytics.dart';
 
 /// Minimal custom bar chart for the week's sales — no charting dependency,
@@ -16,7 +17,7 @@ class SalesBarChart extends StatelessWidget {
   Widget build(BuildContext context) {
     if (data.isEmpty) return const SizedBox.shrink();
     final maxValue = data.map((d) => d.totalAmount).fold<double>(0, (a, b) => a > b ? a : b);
-    final today = DateTime.now();
+    final today = todayBishkek();
 
     return SizedBox(
       height: 140,

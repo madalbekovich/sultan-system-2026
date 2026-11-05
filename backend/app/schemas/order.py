@@ -33,10 +33,15 @@ class OrderRead(BaseModel):
     id: int
     client_id: int
     client_name: str
+    client_code: str | None = None
+    # The client's *current* region — historical display only, kept for
+    # orders placed before the region-pricing model was retired.
+    client_region: str | None = None
     created_at: datetime
     delivery_date: date
     status: OrderStatus
     total_amount: Decimal
+    total_weight_grams: Decimal
     items: list[OrderItemRead] = []
 
     model_config = {"from_attributes": True}
@@ -55,11 +60,13 @@ class ProductSummaryEntry(BaseModel):
     product_name: str
     unit_type: str
     total_planned_qty: Decimal
+    total_weight_grams: Decimal
     client_count: int
 
 
 class OrdersSummaryResponse(BaseModel):
     delivery_date: date
+    order_count: int
     products: list[ProductSummaryEntry]
 
 

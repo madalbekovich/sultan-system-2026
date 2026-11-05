@@ -7,7 +7,11 @@ plugins {
 android {
     namespace = "com.sultansystem.sultan_system"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    // Pinned to an NDK version already present on this machine instead of
+    // flutter.ndkVersion's default (28.2) — avoids a slow first-time NDK
+    // download on a throttled connection. No native plugins in this app
+    // depend on a specific NDK version.
+    ndkVersion = "27.1.12297006"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17

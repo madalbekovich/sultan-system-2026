@@ -2,18 +2,19 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/error_feedback.dart';
+import '../../../core/refresh_status.dart';
+import '../../../core/time.dart';
 import '../../../data/orders_repository.dart';
 import '../../../models/order.dart';
 
-class ManagerOrdersController extends GetxController {
+class ManagerOrdersController extends GetxController with RefreshStatusMixin {
   ManagerOrdersController(this._repository);
 
   final OrdersRepository _repository;
 
-  final selectedDate = DateTime.now().obs;
+  final selectedDate = todayBishkek().obs;
   final orders = <Order>[].obs;
   final isLoading = true.obs;
-  final isOffline = false.obs;
   final updatingOrderIds = <int>{}.obs;
 
   String get _dateKey => DateFormat('yyyy-MM-dd').format(selectedDate.value);
@@ -24,6 +25,13 @@ class ManagerOrdersController extends GetxController {
     orders.assignAll(_repository.cachedOrders(_dateKey));
     isLoading.value = orders.isEmpty;
     reload();
+    watchConnectivity(reload);
+  }
+
+  @override
+  void onClose() {
+    disposeRefreshStatus();
+    super.onClose();
   }
 
   void showDate(DateTime date) {
@@ -33,14 +41,23 @@ class ManagerOrdersController extends GetxController {
   }
 
   Future<void> reload() async {
-    try {
+    await runGuarded(() async {
       final result = await _repository.fetchOrders(deliveryDate: _dateKey);
       orders.assignAll(result);
-      isOffline.value = false;
-    } catch (_) {
-      isOffline.value = true;
-    } finally {
-      isLoading.value = false;
+    });
+    isLoading.value = false;
+  }
+
+  /// Manager-only, permanent. Returns true on success so the caller knows
+  /// whether to show an error.
+  Future<bool> deleteOrder(Order order) async {
+    try {
+      await _repository.deleteOrder(order.id);
+      orders.removeWhere((o) => o.id == order.id);
+      return true;
+    } catch (e) {
+      showErrorSnackbar(e, fallback: 'Не удалось удалить заказ.');
+      return false;
     }
   }
 

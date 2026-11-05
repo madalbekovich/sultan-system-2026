@@ -25,14 +25,24 @@ class CatalogScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Каталог')),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => showProductFormSheet(context, controller),
+        onPressed: () => showProductFormSheet(
+          context,
+          categories: controller.categories,
+          onCreate: controller.createProduct,
+          onEdit: controller.editProduct,
+        ),
         child: const Icon(Icons.add),
       ),
       body: Column(
         children: [
-          Obx(() => controller.isOffline.value ? const OfflineBanner() : const SizedBox.shrink()),
+          Obx(() => StaleDataBanner(
+                status: controller.dataStatus.value,
+                lastUpdated: controller.lastUpdated.value,
+                onRetry: controller.reload,
+              )),
           Padding(
-            padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.xs),
+            padding: const EdgeInsets.fromLTRB(
+                AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.xs),
             child: TextField(
               onChanged: (value) => controller.searchQuery.value = value,
               decoration: InputDecoration(
@@ -48,9 +58,22 @@ class CatalogScreen extends StatelessWidget {
               ),
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+                AppSpacing.lg, 0, AppSpacing.lg, AppSpacing.xs),
+            child: Obx(() => Align(
+                  alignment: Alignment.centerLeft,
+                  child: FilterChip(
+                    label: const Text('Без своей цены у складов'),
+                    selected: controller.showOnlyMissingPrice.value,
+                    onSelected: (v) => controller.showOnlyMissingPrice.value = v,
+                  ),
+                )),
+          ),
           Expanded(
             child: Obx(() {
-              final showSkeleton = controller.isLoading.value && controller.products.isEmpty;
+              final showSkeleton =
+                  controller.isLoading.value && controller.products.isEmpty;
               final items = controller.filteredProducts;
               final Widget content;
               if (showSkeleton) {
@@ -71,12 +94,17 @@ class CatalogScreen extends StatelessWidget {
                   key: const ValueKey('list'),
                   onRefresh: controller.reload,
                   child: ListView.separated(
-                    padding: const EdgeInsets.only(bottom: 96),
+                    // FAB diameter (56) + 24 clearance + the device's own
+                    // bottom safe-area inset (home indicator / gesture bar),
+                    // so the last row never sits under the FAB.
+                    padding: EdgeInsets.only(
+                        bottom: 80 + MediaQuery.of(context).padding.bottom),
                     itemCount: items.length,
                     separatorBuilder: (_, __) => const Divider(height: 1),
                     itemBuilder: (context, index) {
                       final product = items[index];
-                      final categoryName = controller.categoryName(product.categoryId);
+                      final categoryName =
+                          controller.categoryName(product.categoryId);
                       final (icon, color) = productVisual(categoryName);
                       return StaggeredFadeIn(
                         index: index,
@@ -95,8 +123,25 @@ class CatalogScreen extends StatelessWidget {
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
-                          subtitle: Text('$categoryName · ${formatPricePerUnit(product.pricePerUnit, product.unitType)}'),
-                          onTap: () => showProductFormSheet(context, controller, existing: product),
+                          subtitle: Builder(builder: (context) {
+                            final coverage = controller.priceCoverage[product.id];
+                            final missingText = coverage != null && coverage.clientsMissing > 0
+                                ? ' · у ${coverage.clientsMissing} складов нет своей цены'
+                                : '';
+                            return Text(
+                              '$categoryName · ${formatPricePerUnit(product.pricePerUnit, product.unitType)}$missingText',
+                              style: missingText.isNotEmpty
+                                  ? const TextStyle(color: AppColors.ochre)
+                                  : null,
+                            );
+                          }),
+                          onTap: () => showProductFormSheet(
+                            context,
+                            categories: controller.categories,
+                            onCreate: controller.createProduct,
+                            onEdit: controller.editProduct,
+                            existing: product,
+                          ),
                           trailing: Switch(
                             value: product.isActive,
                             onChanged: (_) {

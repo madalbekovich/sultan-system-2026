@@ -6,6 +6,7 @@ class Settings(BaseSettings):
 
     TELEGRAM_BOT_TOKEN: str
     API_BASE_URL: str = "http://localhost:8000/api/v1"
+    BOT_API_KEY: str = ""
 
 
 settings = Settings()

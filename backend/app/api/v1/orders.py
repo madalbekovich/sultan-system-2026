@@ -3,9 +3,11 @@ from datetime import date
 from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
-from sqlmodel import select
+from sqlmodel import delete, select
 
-from app.api.deps import get_current_username, get_db
+from app.api.deps import get_current_username, get_db, require_bot_or_manager
+from app.core.tz import today_bishkek
+from app.models.client import Client
 from app.models.order import Order, OrderStatus
 from app.models.order_item import OrderItem
 from app.models.product import Product
@@ -18,6 +20,7 @@ from app.schemas.order import (
     WeightUpdateRequest,
 )
 from app.services.analytics import get_dashboard_analytics
+from app.services.client_pricing import get_client_price_overrides
 from app.services.notifications import notify_client_order_status
 from app.services.orders import to_order_read
 from app.services.pdf import render_waybill_pdf
@@ -27,7 +30,7 @@ router = APIRouter(prefix="/orders", tags=["orders"])
 
 _ORDER_LOAD_OPTIONS = (
     selectinload(Order.items).selectinload(OrderItem.product),
-    selectinload(Order.client),
+    selectinload(Order.client).selectinload(Client.region),
 )
 
 
@@ -39,22 +42,28 @@ async def _get_order_or_404(db: AsyncSession, order_id: int) -> Order:
     return order
 
 
-@router.get("/summary", response_model=OrdersSummaryResponse)
+@router.get(
+    "/summary", response_model=OrdersSummaryResponse, dependencies=[Depends(get_current_username)]
+)
 async def orders_summary(
     delivery_date: date | None = None, db: AsyncSession = Depends(get_db)
 ) -> OrdersSummaryResponse:
-    target_date = delivery_date or date.today()
+    target_date = delivery_date or today_bishkek()
     return await get_orders_summary(db, target_date)
 
 
-@router.get("/analytics/dashboard", response_model=DashboardAnalytics)
+@router.get(
+    "/analytics/dashboard",
+    response_model=DashboardAnalytics,
+    dependencies=[Depends(get_current_username)],
+)
 async def dashboard_analytics(
     days: int = 7, db: AsyncSession = Depends(get_db)
 ) -> DashboardAnalytics:
     return await get_dashboard_analytics(db, days=days)
 
 
-@router.get("/", response_model=list[OrderRead])
+@router.get("/", response_model=list[OrderRead], dependencies=[Depends(require_bot_or_manager)])
 async def list_orders(
     delivery_date: date | None = None,
     status: OrderStatus | None = None,
@@ -72,14 +81,20 @@ async def list_orders(
     return [to_order_read(order) for order in orders]
 
 
-@router.get("/{order_id}", response_model=OrderRead)
+@router.get("/{order_id}", response_model=OrderRead, dependencies=[Depends(require_bot_or_manager)])
 async def get_order(order_id: int, db: AsyncSession = Depends(get_db)) -> OrderRead:
     order = await _get_order_or_404(db, order_id)
     return to_order_read(order)
 
 
-@router.post("/", response_model=OrderRead)
+@router.post("/", response_model=OrderRead, dependencies=[Depends(require_bot_or_manager)])
 async def create_order(payload: OrderCreate, db: AsyncSession = Depends(get_db)) -> OrderRead:
+    client = await db.get(Client, payload.client_id)
+    if client is None:
+        raise HTTPException(status_code=404, detail="Client not found")
+    if client.is_archived:
+        raise HTTPException(status_code=400, detail="Client is archived")
+
     product_ids = [item.product_id for item in payload.items]
     products = (
         (await db.execute(select(Product).where(Product.id.in_(product_ids))))
@@ -89,6 +104,13 @@ async def create_order(payload: OrderCreate, db: AsyncSession = Depends(get_db))
     price_by_id = {p.id: p.price_per_unit for p in products}
     if len(price_by_id) != len(set(product_ids)):
         raise HTTPException(status_code=400, detail="One or more products not found")
+
+    # This client's own price overrides win over the base price —
+    # resolved once here so this is the one place "which price does this
+    # order use" is decided. Frozen into final_price below; changing the
+    # client's prices later never touches this order again.
+    overrides = await get_client_price_overrides(db, payload.client_id, product_ids)
+    price_by_id.update(overrides)
 
     order = Order(client_id=payload.client_id, delivery_date=payload.delivery_date)
     total = 0
@@ -149,6 +171,24 @@ async def update_order_status(
     await invalidate_summary_cache(order.delivery_date)
     await notify_client_order_status(order)
     return to_order_read(order)
+
+
+@router.delete(
+    "/{order_id}",
+    status_code=204,
+    dependencies=[Depends(get_current_username)],
+)
+async def delete_order(order_id: int, db: AsyncSession = Depends(get_db)) -> Response:
+    """Manager-only, permanent — removes the order and its items from the
+    database entirely (not a status change), for genuinely erroneous
+    orders. Does not touch the client's price sheet or any other order."""
+    order = await _get_order_or_404(db, order_id)
+    delivery_date = order.delivery_date
+    await db.execute(delete(OrderItem).where(OrderItem.order_id == order_id))
+    await db.execute(delete(Order).where(Order.id == order_id))
+    await db.commit()
+    await invalidate_summary_cache(delivery_date)
+    return Response(status_code=204)
 
 
 @router.get(

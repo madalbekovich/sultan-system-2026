@@ -14,3 +14,5 @@ String pluralRu(int count, String one, String few, String many) {
 String clientsCountRu(int count) => '$count ${pluralRu(count, 'клиент', 'клиента', 'клиентов')}';
 
 String itemsCountRu(int count) => '$count ${pluralRu(count, 'товар', 'товара', 'товаров')}';
+
+String ordersCountRu(int count) => '$count ${pluralRu(count, 'заказ', 'заказа', 'заказов')}';

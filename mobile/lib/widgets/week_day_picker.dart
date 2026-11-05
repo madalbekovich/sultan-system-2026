@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' as intl;
 
 import '../core/theme.dart';
+import '../core/time.dart';
 
 /// Horizontal scroller of the next 7 days (today + 6), used wherever a
 /// screen needs "which delivery day am I looking at" — the factory plans
@@ -17,7 +18,7 @@ class WeekDayPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final today = DateTime.now();
+    final today = todayBishkek();
     final days = List.generate(7, (i) => DateTime(today.year, today.month, today.day + i));
 
     return SizedBox(
@@ -60,7 +61,7 @@ class WeekDayPicker extends StatelessWidget {
                       color: isSelected ? Colors.white70 : Colors.black54,
                     ),
                   ),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: 1),
                   Text(
                     intl.DateFormat('d.MM').format(day),
                     style: numberStyle(
@@ -68,6 +69,17 @@ class WeekDayPicker extends StatelessWidget {
                       color: isSelected ? Colors.white : AppColors.black,
                     ),
                   ),
+                  if (isSelected) ...[
+                    const SizedBox(height: 1),
+                    Container(
+                      width: 3,
+                      height: 3,
+                      decoration: const BoxDecoration(
+                        color: AppColors.yellow,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),

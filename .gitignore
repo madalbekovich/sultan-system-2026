@@ -14,3 +14,8 @@ mobile/.packages
 mobile/build/
 mobile/*.iml
 mobile/.idea/
+mobile/android/build/
+mobile/android/.gradle/
+mobile/android/app/build/
+mobile/ios/Pods/
+mobile/ios/Flutter/ephemeral/

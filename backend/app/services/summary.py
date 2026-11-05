@@ -10,6 +10,7 @@ from app.models.order import Order, OrderStatus
 from app.models.order_item import OrderItem
 from app.models.product import Product
 from app.schemas.order import OrdersSummaryResponse, ProductSummaryEntry
+from app.services.weight import weight_grams_for
 
 SUMMARY_CACHE_TTL_SECONDS = 15
 
@@ -29,6 +30,7 @@ async def get_orders_summary(db: AsyncSession, delivery_date: date) -> OrdersSum
             Product.id,
             Product.name,
             Product.unit_type,
+            Product.weight_grams,
             func.sum(OrderItem.planned_qty).label("total_planned_qty"),
             func.count(func.distinct(Order.client_id)).label("client_count"),
         )
@@ -38,10 +40,16 @@ async def get_orders_summary(db: AsyncSession, delivery_date: date) -> OrdersSum
             Order.delivery_date == delivery_date,
             Order.status != OrderStatus.DISPATCHED,
         )
-        .group_by(Product.id, Product.name, Product.unit_type)
+        .group_by(Product.id, Product.name, Product.unit_type, Product.weight_grams)
         .order_by(Product.name)
     )
     rows = (await db.execute(stmt)).all()
+
+    order_count_stmt = select(func.count(func.distinct(Order.id))).where(
+        Order.delivery_date == delivery_date,
+        Order.status != OrderStatus.DISPATCHED,
+    )
+    order_count = (await db.execute(order_count_stmt)).scalar_one()
 
     products = [
         ProductSummaryEntry(
@@ -49,11 +57,16 @@ async def get_orders_summary(db: AsyncSession, delivery_date: date) -> OrdersSum
             product_name=row.name,
             unit_type=row.unit_type.value if hasattr(row.unit_type, "value") else row.unit_type,
             total_planned_qty=Decimal(row.total_planned_qty or 0),
+            total_weight_grams=weight_grams_for(
+                row.unit_type, row.weight_grams, Decimal(row.total_planned_qty or 0)
+            ),
             client_count=row.client_count,
         )
         for row in rows
     ]
-    response = OrdersSummaryResponse(delivery_date=delivery_date, products=products)
+    response = OrdersSummaryResponse(
+        delivery_date=delivery_date, order_count=order_count, products=products
+    )
 
     await redis_client.set(
         cache_key, response.model_dump_json(), ex=SUMMARY_CACHE_TTL_SECONDS

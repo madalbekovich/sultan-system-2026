@@ -9,6 +9,7 @@ import '../../../core/theme.dart';
 import '../../../data/orders_repository.dart';
 import '../../../widgets/app_header.dart';
 import '../../../widgets/fade_in.dart';
+import '../../../widgets/orders_summary_bar.dart';
 import '../../../widgets/skeleton.dart';
 import '../../../widgets/status_views.dart';
 import '../../../widgets/ticket_card.dart';
@@ -32,11 +33,22 @@ class ProductionSummaryScreen extends StatelessWidget {
       body: Column(
         children: [
           const AppHeader(subtitle: 'Сколько нужно взвесить сегодня'),
-          Obx(() => controller.isOffline.value ? const OfflineBanner() : const SizedBox.shrink()),
+          Obx(() => StaleDataBanner(
+                status: controller.dataStatus.value,
+                lastUpdated: controller.lastUpdated.value,
+                onRetry: controller.reload,
+              )),
           Obx(() => WeekDayPicker(
                 selected: controller.selectedDate.value,
                 onSelected: controller.showDate,
               )),
+          Obx(() {
+            final summary = controller.summary.value;
+            return OrdersSummaryBar(
+              orderCount: summary?.orderCount ?? 0,
+              totalWeightGrams: summary?.totalWeightGrams ?? 0,
+            );
+          }),
           Expanded(
             child: Obx(() {
               final showSkeleton = controller.isLoading.value && controller.summary.value == null;
